@@ -625,8 +625,22 @@ async function uploadToDropbox() {
     setDbxMsg('同期しました');
   } catch (e) {
     console.error(e);
-    setDbxMsg('同期に失敗しました', true);
+    setDbxMsg('同期に失敗しました: ' + describeDropboxError(e), true);
   }
+}
+
+function describeDropboxError(e) {
+  try {
+    // Dropbox SDKのエラーは e.error.error_summary や e.message に詳細が入っていることが多い
+    if (e && e.error) {
+      if (typeof e.error === 'string') return e.error;
+      if (e.error.error_summary) return e.error.error_summary;
+      if (e.error['.tag']) return e.error['.tag'];
+    }
+    if (e && e.status) return `status ${e.status}`;
+    if (e && e.message) return e.message;
+  } catch (_) {}
+  return '不明なエラー';
 }
 
 function scheduleDropboxUpload() {
@@ -642,7 +656,12 @@ async function downloadFromDropbox() {
     const text = await res.result.fileBlob.text();
     return JSON.parse(text);
   } catch (e) {
-    // ファイルがまだ存在しない(初回連携時など)は静かに無視する
+    const desc = describeDropboxError(e);
+    // ファイルがまだ存在しない(初回連携時など)は静かに無視する。それ以外は表示する
+    if (!/not_found|path\/not_found/i.test(desc)) {
+      console.error(e);
+      setDbxMsg('ダウンロードに失敗しました: ' + desc, true);
+    }
     return null;
   }
 }

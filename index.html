@@ -441,7 +441,7 @@
     <h3 id="sheetTitle">新しいカード</h3>
     <div id="deckListWrap" style="margin-bottom:16px;">
       <div style="font-size:11px; color: var(--text-muted); margin-bottom:6px;">今デッキに入っているカード</div>
-      <div id="deckList" style="max-height:180px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; padding:6px 8px; background: var(--surface-2);"></div>
+      <div id="deckList" style="max-height:180px; overflow-y:auto; overscroll-behavior:contain; border:1px solid var(--border); border-radius:8px; padding:6px 8px; background: var(--surface-2);"></div>
     </div>
     <div class="field">
       <label>タスク名</label>
@@ -509,7 +509,8 @@
       </div>
 
       <div id="dbxConnectedActions" style="display:none;">
-        <button id="dbxSyncNowBtn" class="settings-action-btn">今すぐ同期</button>
+        <button id="dbxUploadNowBtn" class="settings-action-btn">この端末の内容をアップロード</button>
+        <button id="dbxDownloadNowBtn" class="settings-action-btn">他の端末の最新を取得</button>
         <button id="dbxDisconnectBtn" class="settings-action-btn danger">連携を解除</button>
       </div>
       <div id="dbxSyncMsg" class="settings-desc" style="margin-top:6px;"></div>
@@ -646,8 +647,23 @@ function describeDropboxError(e) {
 function scheduleDropboxUpload() {
   if (!isDropboxConnected() || !dbx) return;
   clearTimeout(dbxUploadTimer);
-  dbxUploadTimer = setTimeout(uploadToDropbox, 1500);
+  dbxUploadTimer = setTimeout(uploadToDropbox, 800);
 }
+
+// アプリを閉じる・タブを切り替える・バックグラウンドに回る瞬間、
+// 待たずに即座にアップロードする(保存し忘れによる巻き戻りを防ぐ)
+function flushDropboxUpload() {
+  if (!isDropboxConnected() || !dbx) return;
+  if (dbxUploadTimer) {
+    clearTimeout(dbxUploadTimer);
+    dbxUploadTimer = null;
+    uploadToDropbox();
+  }
+}
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') flushDropboxUpload();
+});
+window.addEventListener('pagehide', flushDropboxUpload);
 
 async function downloadFromDropbox() {
   if (!dbx) return null;
@@ -2162,8 +2178,12 @@ document.getElementById('settingsOverlay').addEventListener('click', (e) => {
   if (e.target.id === 'settingsOverlay') document.getElementById('settingsOverlay').classList.remove('open');
 });
 document.getElementById('dbxConnectBtn').onclick = () => { startDropboxAuth(); };
-document.getElementById('dbxSyncNowBtn').onclick = async () => {
-  setDbxMsg('同期中...');
+document.getElementById('dbxUploadNowBtn').onclick = async () => {
+  setDbxMsg('アップロード中...');
+  await uploadToDropbox();
+};
+document.getElementById('dbxDownloadNowBtn').onclick = async () => {
+  setDbxMsg('取得中...');
   const remote = await downloadFromDropbox();
   if (remote) {
     if (Array.isArray(remote.cards)) { cards = remote.cards; localStorage.setItem(STORAGE_KEY, JSON.stringify(cards)); }
@@ -2172,8 +2192,8 @@ document.getElementById('dbxSyncNowBtn').onclick = async () => {
     renderLocationMenu();
     populateLocationSelect();
     drawCard();
+    setDbxMsg('取得しました');
   }
-  await uploadToDropbox();
 };
 document.getElementById('dbxDisconnectBtn').onclick = () => { disconnectDropbox(); };
 document.getElementById('notifEnableBtn').onclick = async () => {

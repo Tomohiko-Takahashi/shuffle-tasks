@@ -300,6 +300,7 @@
     font-size: 21px; font-weight: 400; margin: 0 0 10px; line-height:1.5;
     letter-spacing: 0.12em;
     text-shadow: 1px 2px 3px rgba(0,0,0,0.35);
+    white-space: pre-wrap;
   }
   .card .timer { margin-top:8px; }
   .card .timer-count { font-size: 28px; font-weight: 800; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
@@ -366,7 +367,7 @@
   .sheet {
     width:100%; max-width: 340px; background: var(--surface); border-radius:16px;
     border:1px solid var(--border); padding: 22px; max-height: 85vh; overflow-y:auto;
-    transform-style: preserve-3d;
+    transform-style: preserve-3d; min-height: 0;
   }
   /* 編集モードの時だけ、めくっているカードの裏面サイズに統一する */
   .sheet.card-back {
@@ -389,6 +390,10 @@
   .field input[type=text], .field select {
     width:100%; height:36px; border-radius:8px; border:1px solid var(--border-strong);
     padding: 0 10px; font-size:16px; background: var(--surface);
+  }
+  .field textarea {
+    width:100%; border-radius:8px; border:1px solid var(--border-strong);
+    padding: 8px 10px; font-size:16px; background: var(--surface); line-height:1.4;
   }
   .want-select { display:flex; gap:6px; }
   .want-select button {
@@ -445,7 +450,7 @@
     </div>
     <div class="field">
       <label>タスク名</label>
-      <input type="text" id="fTitle" placeholder="ノートを開く">
+      <textarea id="fTitle" placeholder="ノートを開く" rows="2" style="resize:vertical; font-family:inherit;"></textarea>
       <div id="fTitleError" style="font-size:12px; color:#b3261e; display:none; margin-top:4px;">タスク名を入力してください</div>
     </div>
     <div class="field">
@@ -2021,8 +2026,31 @@ function renderDeckList() {
       saveCards(cards);
     };
 
+    const delBtn = document.createElement('button');
+    delBtn.textContent = '×';
+    delBtn.title = 'このタスクを削除';
+    delBtn.style.flexShrink = '0';
+    delBtn.style.width = '28px';
+    delBtn.style.height = '28px';
+    delBtn.style.border = '1px solid var(--border)';
+    delBtn.style.borderRadius = '6px';
+    delBtn.style.background = 'var(--surface)';
+    delBtn.style.color = 'var(--red-text)';
+    delBtn.style.cursor = 'pointer';
+    delBtn.style.fontSize = '14px';
+    delBtn.onclick = (e) => {
+      e.stopPropagation();
+      customConfirm(`「${c.title}」を削除しますか?`, () => {
+        cards = cards.filter(x => x.id !== c.id && x.parentId !== c.id);
+        saveCards(cards);
+        renderDeckList();
+        if (currentCard && currentCard.id === c.id) drawCard();
+      });
+    };
+
     selRow.appendChild(wantSel);
     selRow.appendChild(locSel);
+    selRow.appendChild(delBtn);
     row.appendChild(selRow);
     wrap.appendChild(row);
   });

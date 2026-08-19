@@ -369,6 +369,14 @@
     border:1px solid var(--border); padding: 22px; max-height: 85vh; overflow-y:auto;
     transform-style: preserve-3d; min-height: 0;
   }
+  /* #cardSheetだけは、スクロールバーが角丸を突き破らないよう、
+     外側(クリップのみ)と内側(実際にスクロールする領域)を分離する */
+  #cardSheet.sheet {
+    padding: 0; overflow: hidden; display: flex; flex-direction: column;
+  }
+  #cardSheet .sheet-scroll {
+    overflow-y: auto; padding: 22px; min-height: 0; flex: 1;
+  }
   /* 編集モードの時だけ、めくっているカードの裏面サイズに統一する */
   .sheet.card-back {
     width: 280px; max-width: 280px; height: 400px; box-sizing: border-box;
@@ -395,11 +403,13 @@
     width:100%; border-radius:8px; border:1px solid var(--border-strong);
     padding: 8px 10px; font-size:16px; background: var(--surface); line-height:1.4;
   }
-  .want-select { display:flex; gap:6px; }
+  .want-select { display:flex; gap:6px; align-items:stretch; }
   .want-select button {
-    flex:1; height:38px; font-size:11px; border-radius:8px; border:1px solid var(--border-strong);
-    background: var(--surface); cursor:pointer; padding:0 2px;
+    flex:1; min-height:38px; font-size:11px; border-radius:8px; border:1px solid var(--border-strong);
+    background: var(--surface); cursor:pointer; padding:2px; line-height:1.3;
   }
+  .want-select button .want-btn-small { font-size:9.5px; white-space:nowrap; }
+  .want-select button.want-3 { font-size:11px; }
   .want-select button.selected.want-0 { background: var(--red-bg); border-color: var(--red-border); color: var(--red-text); }
   .want-select button.selected.want-1 { background: var(--amber-bg); border-color: var(--amber-border); color: var(--amber-text); }
   .want-select button.selected.want-2 { background: var(--green-bg); border-color: var(--green-border); color: var(--green-text); }
@@ -443,6 +453,7 @@
 
 <div class="overlay" id="overlay">
   <div class="sheet" id="cardSheet">
+    <div class="sheet-scroll">
     <h3 id="sheetTitle">新しいカード</h3>
     <div id="deckListWrap" style="margin-bottom:16px;">
       <div style="font-size:11px; color: var(--text-muted); margin-bottom:6px;">今デッキに入っているカード</div>
@@ -464,10 +475,10 @@
     <div class="field">
       <label>やりたさ(動物的な欲求の強さのみで選ぶ)</label>
       <div class="want-select" id="wantSelect">
-        <button data-v="0" class="want-0">やりたくない</button>
-        <button data-v="1" class="want-1">やれなくもない</button>
+        <button data-v="0" class="want-0"><span class="want-btn-small">やりたくない</span></button>
+        <button data-v="1" class="want-1"><span class="want-btn-small">やれなくもない</span></button>
         <button data-v="2" class="want-2">らくらく</button>
-        <button data-v="3" class="want-3">自発的にやりたい</button>
+        <button data-v="3" class="want-3">自発的に<br>やりたい</button>
       </div>
     </div>
     <div class="hint">「長期的にはやるべき」は加味しない</div>
@@ -483,6 +494,7 @@
       <button id="cancelBtn">キャンセル</button>
       <button id="deleteBtn" class="danger" style="display:none;">削除</button>
       <button id="saveBtn" class="primary">保存</button>
+    </div>
     </div>
   </div>
 </div>
@@ -514,8 +526,7 @@
       </div>
 
       <div id="dbxConnectedActions" style="display:none;">
-        <button id="dbxUploadNowBtn" class="settings-action-btn">この端末の内容をアップロード</button>
-        <button id="dbxDownloadNowBtn" class="settings-action-btn">他の端末の最新を取得</button>
+        <button id="dbxSyncNowBtn" class="settings-action-btn">今すぐ同期</button>
         <button id="dbxDisconnectBtn" class="settings-action-btn danger">連携を解除</button>
       </div>
       <div id="dbxSyncMsg" class="settings-desc" style="margin-top:6px;"></div>
@@ -1353,7 +1364,7 @@ function promoteNextCard() {
     if (promoted.decBtn) promoted.decBtn.onclick = () => openDecompose(currentCard);
 
     frontFace = promoted;
-    startTimer(promoted.countEl, currentCard.time);
+    startTimer(promoted.countEl, currentCard.time, currentCard.id);
 
     // \u6b8b\u308a\u306eghostFaces\u306f1\u3064\u7e70\u308a\u4e0a\u304c\u308a(index\u304c1\u306f\u30de\u30b9\u30af\u3092\u5916\u3057\u3066\u516c\u958b\u3059\u308b)\u3001\u672b\u5c3e\u306b\u65b0\u3057\u3044\u5148\u8aad\u307f\u3092\u8ffd\u52a0\u3059\u308b(\u672c\u7269\u306e\u5148\u8aad\u307f\u306fTHICKNESS_REAL_CAP\u679a\u307e\u3067)
     const restFaces = ghostFaces.slice(1);
@@ -1589,7 +1600,7 @@ function renderStack() {
     cutCardIn2.addEventListener('animationend', () => cutCardIn2.remove(), { once: true });
   }
 
-  startTimer(face.countEl, c.time);
+  startTimer(face.countEl, c.time, c.id);
 }
 
 
@@ -1604,34 +1615,53 @@ function notifyTimeUp() {
   }
 }
 
-// ===== タイマー =====
+// ===== タイマー(絶対時刻基準:setIntervalの積み重ね誤差やバックグラウンド遅延で
+//       ズレないよう、常に「終了予定の時刻」との差分を計算し直す。閉じて開き直しても復元される) =====
+const TIMER_STATE_KEY = 'shuffle_tasks_timer_state_v1';
 let timerElRef = null;
-function startTimer(el, minutes) {
+let timerEndAt = 0;
+
+function loadTimerState() {
+  try { return JSON.parse(localStorage.getItem(TIMER_STATE_KEY)); } catch (e) { return null; }
+}
+function saveTimerState(cardId, endAt) {
+  localStorage.setItem(TIMER_STATE_KEY, JSON.stringify({ cardId, endAt }));
+}
+function clearTimerState() {
+  localStorage.removeItem(TIMER_STATE_KEY);
+}
+
+function startTimer(el, minutes, cardId) {
   timerElRef = el;
-  secondsLeft = Math.max(0, Math.round(minutes * 60));
+  const saved = cardId ? loadTimerState() : null;
+  if (saved && saved.cardId === cardId) {
+    // 同じカードのタイマーが既に動いていた(再読み込みなど) → 終了予定時刻をそのまま引き継ぐ
+    timerEndAt = saved.endAt;
+  } else {
+    timerEndAt = Date.now() + Math.max(0, Math.round(minutes * 60)) * 1000;
+    if (cardId) saveTimerState(cardId, timerEndAt);
+  }
   updateTimerLabel();
-  timerInterval = setInterval(() => {
-    secondsLeft -= 1;
-    if (secondsLeft <= 0) {
-      secondsLeft = 0;
-      clearInterval(timerInterval);
-      if (timerElRef && currentCard) {
-        timerElRef.textContent = currentCard.want === 3 ? 'そろそろ終わりです' : '経過';
-      }
-      notifyTimeUp();
-      return;
-    }
-    updateTimerLabel();
-  }, 1000);
+  timerInterval = setInterval(updateTimerLabel, 1000);
 }
 function updateTimerLabel() {
   if (!timerElRef) return;
+  const secondsLeft = Math.max(0, Math.round((timerEndAt - Date.now()) / 1000));
+  if (secondsLeft <= 0) {
+    clearInterval(timerInterval);
+    clearTimerState();
+    if (currentCard) {
+      timerElRef.textContent = currentCard.want === 3 ? 'そろそろ終わりです' : '経過';
+    }
+    notifyTimeUp();
+    return;
+  }
   const m = Math.floor(secondsLeft/60);
   const s = secondsLeft % 60;
   // 分を2桁固定にして、桁数のブレ(9:58→10:12のような幅の変化)をなくす
   timerElRef.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
-function clearTimer() { if (timerInterval) clearInterval(timerInterval); }
+function clearTimer() { if (timerInterval) clearInterval(timerInterval); clearTimerState(); }
 
 // 前面カードが去るのと同時に、控え全員を1枚分前へスライドさせる(山全体が押し出される動き)。
 // 1つ前に繰り上がる控えは、このタイミングでマスクを外して色と文字を見せる
@@ -2206,12 +2236,8 @@ document.getElementById('settingsOverlay').addEventListener('click', (e) => {
   if (e.target.id === 'settingsOverlay') document.getElementById('settingsOverlay').classList.remove('open');
 });
 document.getElementById('dbxConnectBtn').onclick = () => { startDropboxAuth(); };
-document.getElementById('dbxUploadNowBtn').onclick = async () => {
-  setDbxMsg('アップロード中...');
-  await uploadToDropbox();
-};
-document.getElementById('dbxDownloadNowBtn').onclick = async () => {
-  setDbxMsg('取得中...');
+document.getElementById('dbxSyncNowBtn').onclick = async () => {
+  setDbxMsg('同期中...');
   const remote = await downloadFromDropbox();
   if (remote) {
     if (Array.isArray(remote.cards)) { cards = remote.cards; localStorage.setItem(STORAGE_KEY, JSON.stringify(cards)); }
@@ -2220,8 +2246,8 @@ document.getElementById('dbxDownloadNowBtn').onclick = async () => {
     renderLocationMenu();
     populateLocationSelect();
     drawCard();
-    setDbxMsg('取得しました');
   }
+  await uploadToDropbox();
 };
 document.getElementById('dbxDisconnectBtn').onclick = () => { disconnectDropbox(); };
 document.getElementById('notifEnableBtn').onclick = async () => {

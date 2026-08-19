@@ -284,11 +284,11 @@
   .card .top-row .actions-mini { display:flex; gap:8px; }
   .card .top-row .top-row-left { display:flex; align-items:center; gap:10px; min-width:0; }
   .card .top-row .loc-span { display:flex; align-items:center; gap:4px; opacity:0.7; flex-shrink:0; }
-  .card .top-row .step-dots { display:flex; align-items:center; gap:5px; flex-shrink:0; }
-  .card .top-row .step-dot { width:7px; height:7px; border-radius:50%; box-sizing:border-box; }
-  .card .top-row .step-dot.done { background: currentColor; opacity:0.85; }
-  .card .top-row .step-dot.current { width:10px; height:10px; background:transparent; border:2px solid currentColor; opacity:1; }
-  .card .top-row .step-dot.future { background:transparent; border:1.3px solid currentColor; opacity:0.35; }
+  .step-dots { display:flex; align-items:center; gap:5px; flex-shrink:0; color: var(--text-secondary); }
+  .step-dot { width:7px; height:7px; border-radius:50%; box-sizing:border-box; }
+  .step-dot.done { background: currentColor; opacity:0.85; }
+  .step-dot.current { width:10px; height:10px; background:transparent; border:2px solid currentColor; opacity:1; }
+  .step-dot.future { background:transparent; border:1.3px solid currentColor; opacity:0.35; }
   .card .top-row button.icon-btn {
     background:none; border:none; cursor:pointer; color:inherit; opacity:0.6; padding:2px;
     display:flex; align-items:center; justify-content:center;
@@ -365,16 +365,17 @@
   }
   .overlay.open { display:flex; }
   .sheet {
+    position: relative;
     width:100%; max-width: 340px; background: var(--surface); border-radius:16px;
     border:1px solid var(--border); padding: 22px; max-height: 85vh; overflow-y:auto;
     transform-style: preserve-3d; min-height: 0;
   }
-  /* #cardSheetだけは、スクロールバーが角丸を突き破らないよう、
+  /* .sheet-clipを持つシートは、スクロールバーが角丸を突き破らないよう、
      外側(クリップのみ)と内側(実際にスクロールする領域)を分離する */
-  #cardSheet.sheet {
+  .sheet.sheet-clip {
     padding: 0; overflow: hidden; display: flex; flex-direction: column;
   }
-  #cardSheet .sheet-scroll {
+  .sheet.sheet-clip .sheet-scroll {
     overflow-y: auto; padding: 22px; min-height: 0; flex: 1;
   }
   /* 編集モードの時だけ、めくっているカードの裏面サイズに統一する */
@@ -458,7 +459,8 @@
 <button class="fab" id="fabBtn">+</button>
 
 <div class="overlay" id="overlay">
-  <div class="sheet" id="cardSheet">
+  <div class="sheet sheet-clip" id="cardSheet">
+    <div id="editStepDots" class="step-dots" style="position:absolute; top:12px; right:14px; z-index:2;"></div>
     <div class="sheet-scroll">
     <h3 id="sheetTitle">新しいカード</h3>
     <div id="deckListWrap" style="margin-bottom:16px;">
@@ -557,7 +559,8 @@
 </div>
 
 <div class="overlay" id="decomposeOverlay">
-  <div class="sheet">
+  <div class="sheet sheet-clip">
+    <div class="sheet-scroll">
     <h3>タスクを分解</h3>
     <div id="decStepsWrap"></div>
     <button id="decAddStepBtn" type="button" style="width:100%; height:34px; font-size:12px; border:1px dashed var(--border-strong); border-radius:8px; background:transparent; cursor:pointer; color:var(--text-secondary); margin-bottom:12px;">+ 手順を増やす</button>
@@ -565,6 +568,7 @@
     <div class="sheet-actions">
       <button id="decCancelBtn">キャンセル</button>
       <button id="decSaveBtn" class="primary">分解する</button>
+    </div>
     </div>
   </div>
 </div>
@@ -1314,11 +1318,11 @@ function buildLookaheadQueue(count, excludeIds) {
 }
 
 // ===== カード表示 =====
-function drawCard() {
+function drawCard(forceCard) {
   clearTimer();
   tickTimePoints();
   renderPoints();
-  currentCard = pickCard();
+  currentCard = forceCard || pickCard();
   const remaining = currentCard ? Math.min(THICKNESS_CAP, Math.max(0, cards.length - 1)) : 0;
   const realCount = Math.min(THICKNESS_REAL_CAP, remaining);
   lookaheadQueue = currentCard ? buildLookaheadQueue(realCount, [currentCard.id]) : [];
@@ -1370,13 +1374,13 @@ function promoteNextCard() {
     promoted.el.style.pointerEvents = '';
     promoted.el.style.zIndex = '10';
     // transform\u306f\u65e2\u306bshiftGhostsForward\u3067(0,0)\u3078\u5411\u3051\u3066\u52d5\u304b\u3057\u59cb\u3081\u3066\u3044\u308b\u306e\u3067\u3001\u3053\u3053\u3067\u306f\u89e6\u3089\u306a\u3044
-    promoted.editBtn.onclick = () => openEdit(currentCard);
-    promoted.doneBtn.onclick = () => completeCard(currentCard);
-    promoted.skipBtn.onclick = () => skipCard(currentCard);
-    if (promoted.decBtn) promoted.decBtn.onclick = () => openDecompose(currentCard);
+    promoted.editBtn.onclick = () => openEdit(promoted.data);
+    promoted.doneBtn.onclick = () => completeCard(promoted.data);
+    promoted.skipBtn.onclick = () => skipCard(promoted.data);
+    if (promoted.decBtn) promoted.decBtn.onclick = () => openDecompose(promoted.data);
 
     frontFace = promoted;
-    startTimer(promoted.countEl, currentCard.time, currentCard.id);
+    startTimer(promoted.countEl, promoted.data.time, promoted.data.id);
 
     // \u6b8b\u308a\u306eghostFaces\u306f1\u3064\u7e70\u308a\u4e0a\u304c\u308a(index\u304c1\u306f\u30de\u30b9\u30af\u3092\u5916\u3057\u3066\u516c\u958b\u3059\u308b)\u3001\u672b\u5c3e\u306b\u65b0\u3057\u3044\u5148\u8aad\u307f\u3092\u8ffd\u52a0\u3059\u308b(\u672c\u7269\u306e\u5148\u8aad\u307f\u306fTHICKNESS_REAL_CAP\u679a\u307e\u3067)
     const restFaces = ghostFaces.slice(1);
@@ -1445,6 +1449,22 @@ function promoteNextCard() {
 }
 
 // カードの中身(タイトル・時間・タイマー・ボタン列)を、前面用・控え用で共通の構造で作る
+// 分解済みタスクなら、総ステップ数と現在の段階を表すドット要素を作る。分解されていなければnull
+function buildStepDotsEl(cardData) {
+  if (cardData.parentId == null || cardData.order == null || !cardData.totalSteps) return null;
+  const dotsWrap = document.createElement('div');
+  dotsWrap.className = 'step-dots';
+  const currentIdx = cardData.order - 1; // 0始まり
+  for (let i = 0; i < cardData.totalSteps; i++) {
+    const dot = document.createElement('span');
+    if (i < currentIdx) dot.className = 'step-dot done';
+    else if (i === currentIdx) dot.className = 'step-dot current';
+    else dot.className = 'step-dot future';
+    dotsWrap.appendChild(dot);
+  }
+  return dotsWrap;
+}
+
 function buildCardFace(cardData) {
   const card = document.createElement('div');
   card.className = 'card';
@@ -1466,19 +1486,8 @@ function buildCardFace(cardData) {
   leftGroup.appendChild(locSpan);
 
   // 分解済みタスクの場合、総ステップ数と現在の段階をドットで表す
-  if (cardData.parentId != null && cardData.order != null && cardData.totalSteps) {
-    const dotsWrap = document.createElement('div');
-    dotsWrap.className = 'step-dots';
-    const currentIdx = cardData.order - 1; // 0始まり
-    for (let i = 0; i < cardData.totalSteps; i++) {
-      const dot = document.createElement('span');
-      if (i < currentIdx) dot.className = 'step-dot done';
-      else if (i === currentIdx) dot.className = 'step-dot current';
-      else dot.className = 'step-dot future';
-      dotsWrap.appendChild(dot);
-    }
-    leftGroup.appendChild(dotsWrap);
-  }
+  const stepDots = buildStepDotsEl(cardData);
+  if (stepDots) leftGroup.appendChild(stepDots);
 
   const miniActions = document.createElement('div');
   miniActions.className = 'actions-mini';
@@ -1795,16 +1804,18 @@ function addDecomposeStep(idx, defaults) {
   label.style.display = 'block';
   label.style.marginBottom = '4px';
 
-  const input = document.createElement('input');
-  input.type = 'text';
+  const input = document.createElement('textarea');
+  input.rows = 2;
   input.className = 'dec-step-input';
   input.placeholder = idx === 0 ? 'ノートを開く' : '';
   input.style.width = '100%';
-  input.style.height = '36px';
   input.style.borderRadius = '8px';
   input.style.border = '1px solid var(--border-strong)';
-  input.style.padding = '0 10px';
+  input.style.padding = '6px 10px';
   input.style.fontSize = '16px';
+  input.style.fontFamily = 'inherit';
+  input.style.lineHeight = '1.4';
+  input.style.resize = 'vertical';
   input.style.background = 'var(--surface)';
   input.style.marginBottom = '8px';
   input.style.boxSizing = 'border-box';
@@ -1934,7 +1945,8 @@ document.getElementById('decSaveBtn').onclick = () => {
   saveCards(cards);
   decomposeTarget = null;
   document.getElementById('decomposeOverlay').classList.remove('open');
-  drawCard();
+  const firstStep = cards.find(x => x.parentId === parentId && x.order === 1);
+  drawCard(firstStep);
 };
 
 // ===== 新規作成/編集シート =====
@@ -2110,6 +2122,7 @@ function openCreate() {
   document.getElementById('deleteBtn').style.display = 'none';
   document.getElementById('deckListWrap').style.display = 'block';
   renderDeckList();
+  document.getElementById('editStepDots').innerHTML = '';
   const sheet = document.getElementById('cardSheet');
   sheet.classList.remove('card-back', 'flip-out');
   resetSheetPosition(sheet);
@@ -2134,6 +2147,10 @@ function openEdit(c) {
   setWantSelected(c.want);
   document.getElementById('deleteBtn').style.display = 'block';
   document.getElementById('deckListWrap').style.display = 'none';
+  const dotsEl = document.getElementById('editStepDots');
+  dotsEl.innerHTML = '';
+  const stepDots = buildStepDotsEl(c);
+  if (stepDots) dotsEl.appendChild(stepDots);
   const sheet = document.getElementById('cardSheet');
   sheet.classList.remove('flip-out');
   sheet.classList.add('card-back');
@@ -2205,6 +2222,8 @@ document.getElementById('saveBtn').onclick = () => {
   const want = Number(wantSelect.dataset.value);
   const loopType = document.getElementById('fLoopType').value;
 
+  const keepShowingId = currentCard ? currentCard.id : null; // 編集によって前面のカードが変わらないようにする
+
   if (editingId) {
     cards = cards.map(c => c.id === editingId ? {...c, title, time, location, want, loopType} : c);
   } else {
@@ -2214,7 +2233,14 @@ document.getElementById('saveBtn').onclick = () => {
   }
   saveCards(cards);
   closeOverlay();
-  drawCard();
+
+  if (editingId) {
+    // 編集時は、そのカードが今表示中だったかに関わらず、編集前と同じカードをそのまま表示し続ける
+    const stayCard = cards.find(x => x.id === keepShowingId);
+    drawCard(stayCard || undefined);
+  } else {
+    drawCard();
+  }
 };
 document.getElementById('deleteBtn').onclick = () => {
   if (editingId) deleteCard(editingId);

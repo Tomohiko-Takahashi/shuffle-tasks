@@ -1,0 +1,2196 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Shuffle Tasks">
+<meta name="theme-color" content="#f4f3ef">
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<title>Shuffle Tasks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/dropbox@10.34.0/dist/Dropbox-sdk.min.js"></script>
+<style>
+  :root {
+    --bg: #f4f3ef;
+    --surface: #ffffff;
+    --surface-2: #ececE6;
+    --border: #dedad0;
+    --border-strong: #c7c2b4;
+    --text: #2c2c2a;
+    --text-secondary: #6a6a64;
+    --text-muted: #a3a096;
+    --accent: #2c2c2a;
+    --accent-text: #ffffff;
+    --red-bg: #fcebeb;   --red-border: #e24b4a; --red-text: #791f1f;
+    --amber-bg: #faeeda; --amber-border: #ef9f27; --amber-text: #633806;
+    --green-bg: #eaf3de; --green-border: #97c459; --green-text: #27500a;
+    --blue-bg: #e6f1fb;  --blue-border: #378add; --blue-text: #0c447c;
+    --red-vivid-1: #f26d67;   --red-vivid-2: #cf3535;
+    --amber-vivid-1: #ffb648; --amber-vivid-2: #ec8c0d;
+    --green-vivid-1: #8ed158; --green-vivid-2: #549c2c;
+    --blue-vivid-1: #5b9fe8;  --blue-vivid-2: #2a6dc4;
+    --frame-gray: #808080;
+    --frame-gray-light: #949494;
+    --frame-gray-dark: #686868;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Hiragino Sans", "Yu Gothic", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    padding-top: calc(20px + env(safe-area-inset-top));
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    padding-left: calc(20px + env(safe-area-inset-left));
+    padding-right: calc(20px + env(safe-area-inset-right));
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  .logo {
+    position: fixed; top: calc(18px + env(safe-area-inset-top)); left: calc(20px + env(safe-area-inset-left));
+    font-family: Georgia, "Times New Roman", "Hiragino Mincho ProN", serif;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.02em;
+    color: #1a1a1a;
+    z-index: 10;
+  }
+  .settings-btn {
+    position: fixed; top: calc(16px + env(safe-area-inset-top)); right: calc(16px + env(safe-area-inset-right));
+    width: 32px; height:32px; border-radius:50%; z-index:10;
+    background: transparent; border: none; color: #1a1a1a; opacity:0.6;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0;
+  }
+  .settings-btn:hover { opacity:1; }
+  .settings-section { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+  .settings-section:last-of-type { border-bottom: none; }
+  .settings-section-title { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+  .settings-desc { font-size: 12px; color: var(--text-secondary); line-height:1.6; margin: 4px 0 10px; }
+  .settings-action-btn {
+    height: 38px; border-radius: 8px; font-size: 13px; border: 1px solid var(--border-strong);
+    background: var(--surface); color: var(--text); cursor: pointer; width: 100%; margin-top: 6px;
+  }
+  .settings-action-btn.primary { background: var(--accent); color: var(--accent-text); border: none; }
+  .settings-action-btn.danger { color: var(--red-text); border-color: var(--red-border); }
+  .app {
+    width: 100%;
+    max-width: 420px;
+  }
+
+  /* 上部:現在地セレクタ(デッキの外) */
+  .location-wrap { display:flex; justify-content:center; margin-bottom: 28px; position: relative; }
+  .location-pill {
+    background: var(--surface); border: 1px solid var(--border-strong);
+    border-radius: 20px; padding: 8px 16px; font-size: 13px; cursor: pointer;
+    display:flex; align-items:center; gap:6px; color: var(--text);
+  }
+  .location-menu {
+    position:absolute; top: calc(100% + 6px); left:50%; transform: translateX(-50%);
+    background: var(--surface); border:1px solid var(--border); border-radius:8px;
+    width: 230px; overflow:hidden; z-index: 30; display:none; box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  }
+  .location-menu.open { display:block; }
+  .location-menu div { padding: 9px 14px; font-size: 13px; cursor:pointer; border-top:1px solid var(--border); }
+  .location-menu div:first-child { border-top:none; }
+  .location-menu div:hover { background: var(--surface-2); }
+  .location-menu div.active { background: var(--surface-2); font-weight:600; }
+
+  /* ポイントボタン付近のカウントダウン */
+  .points-countdown-badge {
+    position: fixed;
+    right: calc(24px + 54px + 12px + env(safe-area-inset-right) - 12px);
+    bottom: calc(24px + 54px + 8px + env(safe-area-inset-bottom));
+    width: 78px; text-align:center;
+    font-size: 11px; font-weight: 600; color: var(--text);
+    background: var(--surface); border: 1px solid var(--border-strong);
+    border-radius: 10px; padding: 3px 4px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    pointer-events:none;
+    z-index: 5;
+  }
+
+  /* カードスタック */
+  .stack {
+    position: relative;
+    width: 280px; height: 400px;
+    margin: 0 auto 24px;
+  }
+  .stack .ghost {
+    position:absolute; inset:0;
+    background: linear-gradient(160deg, var(--frame-gray-light) 0%, var(--frame-gray-dark) 100%);
+    border-radius: 18px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    z-index: 1;
+    box-sizing: border-box;
+    transition: transform 0.4s ease;
+    overflow: hidden;
+  }
+  .card {
+    position:absolute; inset:0;
+    border-radius: 18px;
+    background: linear-gradient(160deg, var(--frame-gray-light) 0%, var(--frame-gray-dark) 100%);
+    display:block;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.10);
+    z-index: 10;
+    overflow: hidden;
+  }
+  /* 物理的なカードっぽさを出すための、斜めの光帯(白ではなくわずかに明度を上げるだけ) */
+  .card::before, .stack .ghost::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(115deg,
+      transparent 32%,
+      rgba(255,255,255,0.10) 44%,
+      rgba(255,255,255,0.22) 50%,
+      rgba(255,255,255,0.10) 56%,
+      transparent 68%);
+    pointer-events: none;
+    z-index: 6;
+  }
+  /* 内側:角丸なし(角ばった)色つきエリア。下だけ縁を太くしてアイコン列を内包する */
+  .card .card-inner {
+    position:absolute; top:14px; left:14px; right:14px; bottom:64px;
+    border-radius: 0;
+    border: 5px solid rgba(255,255,255,0.9);
+    padding: 18px;
+    display:flex; flex-direction:column;
+    box-sizing: border-box;
+  }
+  /* 控えの奥側:実体は本物のカードだが、見た目だけダミー風に覆い隠す */
+  .card.masked .card-inner, .card.masked .icon-action-row { visibility: hidden; }
+  /* 新規タスク登録・場所切り替え時:デッキの上半分らしきカードが弧を描いて下へ移り、切られたように見える */
+  .cut-card {
+    position:absolute; inset:0;
+    border-radius: 18px;
+    background: linear-gradient(160deg, var(--frame-gray-light) 0%, var(--frame-gray-dark) 100%);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+    z-index: 30;
+    pointer-events: none;
+    animation: cardCut 0.5s cubic-bezier(0.3, 0, 0.4, 1) forwards;
+    transform-origin: 50% 100%;
+  }
+  @keyframes cardCut {
+    0%   { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+    35%  { transform: translate(64px, -70px) rotate(14deg); opacity: 1; }
+    70%  { transform: translate(22px, 110px) rotate(6deg); opacity: 0.95; }
+    100% { transform: translate(0, 190px) rotate(0deg); opacity: 0; }
+  }
+  /* 同時に、左上から斜めに滑り込んできて背面(控えの一番手前)に収まるカード */
+  .cut-card-in {
+    position:absolute; inset:0;
+    border-radius: 18px;
+    background: linear-gradient(160deg, var(--frame-gray-light) 0%, var(--frame-gray-dark) 100%);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+    z-index: 0;
+    pointer-events: none;
+    animation: cardCutIn 0.5s cubic-bezier(0.3, 0, 0.4, 1) forwards;
+  }
+  @keyframes cardCutIn {
+    0%   { transform: translate(-150px, -170px) rotate(-20deg); opacity: 0; }
+    25%  { opacity: 1; }
+    100% { transform: translate(8px, 8px) rotate(0deg); opacity: 1; }
+  }
+  /* 少し遅れて、右上から滑り込んできて2番目の控えの位置に収まるカード */
+  .cut-card-in2 {
+    position:absolute; inset:0;
+    border-radius: 18px;
+    background: linear-gradient(160deg, var(--frame-gray-light) 0%, var(--frame-gray-dark) 100%);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+    z-index: -1;
+    pointer-events: none;
+    animation: cardCutIn2 0.5s cubic-bezier(0.3, 0, 0.4, 1) 0.09s forwards;
+    opacity: 0;
+  }
+  @keyframes cardCutIn2 {
+    0%   { transform: translate(150px, -170px) rotate(20deg); opacity: 0; }
+    25%  { opacity: 1; }
+    100% { transform: translate(17px, 17px) rotate(0deg); opacity: 1; }
+  }
+  .card.reveal { animation: cardReveal 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
+  @keyframes cardReveal {
+    0% { transform: scale(0.92) rotate(-3deg) translateY(8px); opacity: 0; }
+    60% { transform: scale(1.02) rotate(1deg) translateY(-2px); opacity: 1; }
+    100% { transform: scale(1) rotate(0deg) translateY(0); opacity: 1; }
+  }
+  /* 完了・スキップ後:控えの一番手前の位置から新しいカードが繰り上がる */
+  .card.promote { animation: cardPromote 0.24s ease-out; }
+  @keyframes cardPromote {
+    0% { transform: translate(8px, 8px) scale(0.98); }
+    100% { transform: translate(0, 0) scale(1); }
+  }
+  /* 完了:画面外に飛んでいく */
+  .card.fly-out {
+    animation: cardFlyOut 0.38s cubic-bezier(0.4, 0, 1, 1) forwards;
+    pointer-events: none;
+  }
+  @keyframes cardFlyOut {
+    0% { transform: translate(0,0) rotate(0deg) scale(1); opacity: 1; }
+    100% { transform: translate(160%, -60%) rotate(28deg) scale(0.9); opacity: 0; }
+  }
+  /* スキップ:一度デッキの外へ完全に出てから、最背面に滑り込む */
+  .card.to-back {
+    animation: cardToBack 0.5s ease-in-out forwards;
+    pointer-events: none;
+  }
+  @keyframes cardToBack {
+    0%   { transform: translate(0,0) scale(1) rotate(0deg); opacity: 1; z-index: 10; }
+    32%  { transform: translate(-155%, -20%) scale(1) rotate(-12deg); opacity: 1; z-index: 10; }
+    33%  { transform: translate(-155%, -20%) scale(1) rotate(-12deg); opacity: 1; z-index: 0; }
+    70%  { transform: translate(28px, 28px) scale(1) rotate(0deg); opacity: 1; z-index: 0; }
+    100% { transform: translate(28px, 28px) scale(1) rotate(0deg); opacity: 0; z-index: 0; }
+  }
+  .card-inner.want-0 { background: linear-gradient(160deg, var(--red-vivid-1) 0%, var(--red-vivid-2) 100%); }
+  .card-inner.want-1 { background: linear-gradient(160deg, var(--amber-vivid-1) 0%, var(--amber-vivid-2) 100%); }
+  .card-inner.want-2 { background: linear-gradient(160deg, var(--green-vivid-1) 0%, var(--green-vivid-2) 100%); }
+  .card-inner.want-3 { background: linear-gradient(160deg, var(--blue-vivid-1) 0%, var(--blue-vivid-2) 100%); }
+  /* 「自発的にやりたい」ランクだけ、虹色に揺らめくキラカード風の光沢を重ねる */
+  .card-inner.want-3::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(120deg,
+      rgba(255,80,180,0.30) 0%,
+      rgba(255,210,60,0.30) 20%,
+      rgba(80,255,170,0.30) 40%,
+      rgba(60,190,255,0.30) 60%,
+      rgba(190,90,255,0.30) 80%,
+      rgba(255,80,180,0.30) 100%);
+    background-size: 260% 260%;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+    animation: kiraShift 5s ease-in-out infinite;
+  }
+  @keyframes kiraShift {
+    0%, 100% { background-position: 0% 0%; }
+    50% { background-position: 100% 100%; }
+  }
+  .card .top-row { display:flex; justify-content:space-between; align-items:center; font-size:11px; }
+  .card-inner.want-0 .top-row, .card-inner.want-0 ~ .icon-action-row, .card-inner.want-0 .center p { color: var(--red-text); }
+  .card-inner.want-1 .top-row, .card-inner.want-1 ~ .icon-action-row, .card-inner.want-1 .center p { color: var(--amber-text); }
+  .card-inner.want-2 .top-row, .card-inner.want-2 ~ .icon-action-row, .card-inner.want-2 .center p { color: var(--green-text); }
+  .card-inner.want-3 .top-row, .card-inner.want-3 ~ .icon-action-row, .card-inner.want-3 .center p { color: var(--blue-text); }
+  .card .top-row .actions-mini { display:flex; gap:8px; }
+  .card .top-row .top-row-left { display:flex; align-items:center; gap:10px; min-width:0; }
+  .card .top-row .loc-span { display:flex; align-items:center; gap:4px; opacity:0.7; flex-shrink:0; }
+  .card .top-row .step-dots { display:flex; align-items:center; gap:5px; flex-shrink:0; }
+  .card .top-row .step-dot { width:7px; height:7px; border-radius:50%; box-sizing:border-box; }
+  .card .top-row .step-dot.done { background: currentColor; opacity:0.85; }
+  .card .top-row .step-dot.current { width:10px; height:10px; background:transparent; border:2px solid currentColor; opacity:1; }
+  .card .top-row .step-dot.future { background:transparent; border:1.3px solid currentColor; opacity:0.35; }
+  .card .top-row button.icon-btn {
+    background:none; border:none; cursor:pointer; color:inherit; opacity:0.6; padding:2px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .card .top-row button.icon-btn:hover { opacity:1; }
+  .card .center { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+  .card .center p:first-child {
+    font-family: "RocknRoll One", "Hiragino Sans", "Yu Gothic", sans-serif;
+    font-size: 21px; font-weight: 400; margin: 0 0 10px; line-height:1.5;
+    letter-spacing: 0.12em;
+    text-shadow: 1px 2px 3px rgba(0,0,0,0.35);
+  }
+  .card .timer { margin-top:8px; }
+  .card .timer-count { font-size: 28px; font-weight: 800; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
+  .card .timer-total { font-size: 13px; font-weight: 500; opacity: 0.6; font-variant-numeric: tabular-nums; margin-left: 2px; }
+  .card .icon-action-row {
+    position:absolute; left:0; right:0; bottom: 10px;
+    display:flex; gap:14px; justify-content:center; align-items:center; z-index:2;
+  }
+  .card .icon-action-btn {
+    width:48px; height:48px; border-radius:50%; flex-shrink:0;
+    border:1.5px solid var(--border-strong); background: var(--surface); color: var(--text);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0;
+  }
+  .card .icon-action-btn:hover { background: var(--surface-2); }
+  .card .icon-action-btn:active { transform: scale(0.94); }
+
+  .empty-msg { text-align:center; color: var(--text-secondary); font-size:14px; padding: 60px 0; }
+
+  /* 新規作成ボタン */
+  .fab {
+    position: fixed; right: calc(24px + env(safe-area-inset-right)); bottom: calc(24px + env(safe-area-inset-bottom));
+    width: 54px; height:54px; border-radius:50%;
+    background: var(--accent); color: var(--accent-text); border:none;
+    font-size: 26px; cursor:pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .fab.fab-points {
+    right: calc(24px + 54px + 12px + env(safe-area-inset-right));
+    font-size: 15px; font-weight:700;
+  }
+  .fab.fab-points:disabled { opacity: 0.4; cursor: default; }
+  .fab.fab-points.shake { animation: pointsShake 0.4s ease; }
+  .fab.fab-points.shake-fail { animation: pointsShakeFail 0.35s ease; background: var(--red-border); }
+  @keyframes pointsShake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-4px) rotate(-4deg); }
+    40% { transform: translateX(4px) rotate(4deg); }
+    60% { transform: translateX(-3px) rotate(-3deg); }
+    80% { transform: translateX(3px) rotate(3deg); }
+  }
+  @keyframes pointsShakeFail {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    50% { transform: translateX(6px); }
+    75% { transform: translateX(-4px); }
+  }
+  /* 他に切り替えられるカードが無い時、スキップ操作に反応するだけの振動(色は変えない) */
+  .card.no-alt-shake { animation: noAltShake 0.35s ease; }
+  @keyframes noAltShake {
+    0%, 100% { transform: translate(0,0); }
+    20% { transform: translate(-5px, 0) rotate(-2deg); }
+    40% { transform: translate(5px, 0) rotate(2deg); }
+    60% { transform: translate(-4px, 0) rotate(-1.5deg); }
+    80% { transform: translate(4px, 0) rotate(1.5deg); }
+  }
+
+  /* オーバーレイ(新規作成/編集) */
+  .overlay {
+    position: fixed; inset:0; background: rgba(0,0,0,0.4);
+    display:none; align-items:center; justify-content:center; padding: 20px; z-index: 50;
+    perspective: 1200px;
+  }
+  .overlay.open { display:flex; }
+  .sheet {
+    width:100%; max-width: 340px; background: var(--surface); border-radius:16px;
+    border:1px solid var(--border); padding: 22px; max-height: 85vh; overflow-y:auto;
+    transform-style: preserve-3d;
+  }
+  /* 編集モードの時だけ、めくっているカードの裏面サイズに統一する */
+  .sheet.card-back {
+    width: 280px; max-width: 280px; height: 400px; box-sizing: border-box;
+    border-radius: 18px; border: 1px solid var(--border-strong);
+  }
+  .sheet.flip-in { animation: cardFlipIn 0.42s cubic-bezier(0.22, 1, 0.36, 1); }
+  .sheet.flip-out { animation: cardFlipOut 0.28s ease forwards; }
+  @keyframes cardFlipIn {
+    0% { transform: rotateY(-110deg); opacity: 0.2; }
+    100% { transform: rotateY(0deg); opacity: 1; }
+  }
+  @keyframes cardFlipOut {
+    0% { transform: rotateY(0deg); opacity: 1; }
+    100% { transform: rotateY(110deg); opacity: 0; }
+  }
+  .sheet h3 { margin:0 0 16px; font-size:16px; font-weight:600; }
+  .field { margin-bottom: 14px; }
+  .field label { font-size:12px; color: var(--text-secondary); display:block; margin-bottom:4px; }
+  .field input[type=text], .field select {
+    width:100%; height:36px; border-radius:8px; border:1px solid var(--border-strong);
+    padding: 0 10px; font-size:16px; background: var(--surface);
+  }
+  .want-select { display:flex; gap:6px; }
+  .want-select button {
+    flex:1; height:38px; font-size:11px; border-radius:8px; border:1px solid var(--border-strong);
+    background: var(--surface); cursor:pointer; padding:0 2px;
+  }
+  .want-select button.selected.want-0 { background: var(--red-bg); border-color: var(--red-border); color: var(--red-text); }
+  .want-select button.selected.want-1 { background: var(--amber-bg); border-color: var(--amber-border); color: var(--amber-text); }
+  .want-select button.selected.want-2 { background: var(--green-bg); border-color: var(--green-border); color: var(--green-text); }
+  .want-select button.selected.want-3 { background: var(--blue-bg); border-color: var(--blue-border); color: var(--blue-text); }
+  .checkrow { display:flex; align-items:center; gap:8px; font-size:13px; margin-bottom:10px; }
+  .sheet-actions { display:flex; gap:8px; margin-top:6px; }
+  .sheet-actions button {
+    flex:1; height:40px; border-radius:8px; font-size:14px; border:1px solid var(--border-strong);
+    background: var(--surface); cursor:pointer;
+  }
+  .sheet-actions button.primary { background: var(--accent); color: var(--accent-text); border:none; }
+  .sheet-actions button.danger { color: var(--red-text); border-color: var(--red-border); }
+
+  .hint { font-size: 11px; color: var(--text-muted); margin-top: -8px; margin-bottom: 14px; }
+</style>
+</head>
+<body>
+
+<div class="logo">Shuffle Tasks</div>
+<button class="settings-btn" id="settingsBtn" aria-label="設定">
+  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+</button>
+
+<div class="app">
+  <div class="location-wrap">
+    <div class="location-pill" id="locationPill">
+      <span id="locationLabel">今いる場所:指定なし</span>
+      <span style="opacity:0.5">▾</span>
+    </div>
+    <div class="location-menu" id="locationMenu"></div>
+  </div>
+
+  <div id="stackArea"></div>
+</div>
+
+<div class="points-countdown-badge" id="pointsCountdown"></div>
+<button class="fab fab-points" id="pointsUseBtn" aria-label="ポイントを使う">
+  <span id="pointsUseValue">0P</span>
+</button>
+<button class="fab" id="fabBtn">+</button>
+
+<div class="overlay" id="overlay">
+  <div class="sheet" id="cardSheet">
+    <h3 id="sheetTitle">新しいカード</h3>
+    <div id="deckListWrap" style="margin-bottom:16px;">
+      <div style="font-size:11px; color: var(--text-muted); margin-bottom:6px;">今デッキに入っているカード</div>
+      <div id="deckList" style="max-height:180px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; padding:6px 8px; background: var(--surface-2);"></div>
+    </div>
+    <div class="field">
+      <label>タスク名</label>
+      <input type="text" id="fTitle" placeholder="ノートを開く">
+      <div id="fTitleError" style="font-size:12px; color:#b3261e; display:none; margin-top:4px;">タスク名を入力してください</div>
+    </div>
+    <div class="field">
+      <label>想定作業時間</label>
+      <select id="fTime"></select>
+    </div>
+    <div class="field">
+      <label>場所(任意・1つだけ選択)</label>
+      <select id="fLocation"></select>
+    </div>
+    <div class="field">
+      <label>やりたさ(動物的な欲求の強さのみで選ぶ)</label>
+      <div class="want-select" id="wantSelect">
+        <button data-v="0" class="want-0">やりたくない</button>
+        <button data-v="1" class="want-1">やれなくもない</button>
+        <button data-v="2" class="want-2">らくらく</button>
+        <button data-v="3" class="want-3">自発的にやりたい</button>
+      </div>
+    </div>
+    <div class="hint">「長期的にはやるべき」は加味しない</div>
+    <div class="field">
+      <label>ループ設定</label>
+      <select id="fLoopType">
+        <option value="none">しない(1回きり)</option>
+        <option value="daily">1日1回(完了すると翌日また出る)</option>
+        <option value="anytime">何度でも(完了後すぐまた出現候補になる)</option>
+      </select>
+    </div>
+    <div class="sheet-actions">
+      <button id="cancelBtn">キャンセル</button>
+      <button id="deleteBtn" class="danger" style="display:none;">削除</button>
+      <button id="saveBtn" class="primary">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="confirmOverlay">
+  <div class="sheet" style="max-width:300px;">
+    <p id="confirmMsg" style="margin:0 0 18px; font-size:14px; line-height:1.6;"></p>
+    <div class="sheet-actions">
+      <button id="confirmCancelBtn">キャンセル</button>
+      <button id="confirmOkBtn" class="danger">削除する</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="settingsOverlay">
+  <div class="sheet">
+    <h3>設定</h3>
+
+    <div class="settings-section">
+      <div class="settings-section-title">Dropbox連携</div>
+      <p id="dbxStatusText" class="settings-desc">未接続です。ブラウザとiPhoneでタスクを共有できます。</p>
+
+      <div id="dbxConnectForm">
+        <div class="field">
+          <label>Dropbox App Key</label>
+          <input type="text" id="dbxAppKeyInput" placeholder="App Consoleで発行したキー">
+        </div>
+        <button id="dbxConnectBtn" class="settings-action-btn primary">連携する</button>
+      </div>
+
+      <div id="dbxConnectedActions" style="display:none;">
+        <button id="dbxSyncNowBtn" class="settings-action-btn">今すぐ同期</button>
+        <button id="dbxDisconnectBtn" class="settings-action-btn danger">連携を解除</button>
+      </div>
+      <div id="dbxSyncMsg" class="settings-desc" style="margin-top:6px;"></div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">通知</div>
+      <p id="notifStatusText" class="settings-desc">目標時間になったとき、ブラウザから通知を出します(アプリを開いている間のみ)。</p>
+      <button id="notifEnableBtn" class="settings-action-btn">通知を有効にする</button>
+    </div>
+
+    <div class="sheet-actions">
+      <button id="settingsCloseBtn">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="decomposeOverlay">
+  <div class="sheet">
+    <h3>タスクを分解</h3>
+    <div id="decStepsWrap"></div>
+    <button id="decAddStepBtn" type="button" style="width:100%; height:34px; font-size:12px; border:1px dashed var(--border-strong); border-radius:8px; background:transparent; cursor:pointer; color:var(--text-secondary); margin-bottom:12px;">+ 手順を増やす</button>
+    <div id="decError" style="font-size:12px; color:#b3261e; display:none; margin-bottom:10px;">少なくとも1つは入力してください</div>
+    <div class="sheet-actions">
+      <button id="decCancelBtn">キャンセル</button>
+      <button id="decSaveBtn" class="primary">分解する</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== データ層(localStorage) =====
+const STORAGE_KEY = 'shuffle_tasks_cards_v1';
+const POINTS_KEY = 'shuffle_tasks_points_v1';
+const LOC_KEY = 'shuffle_tasks_current_location_v1';
+
+// ===== Dropbox連携(PKCE方式) =====
+const DBX_LS = {
+  appkey: 'shuffle_tasks_dbx_appkey',
+  refresh: 'shuffle_tasks_dbx_refresh',
+  verifier: 'shuffle_tasks_dbx_verifier',
+  mode: 'shuffle_tasks_dbx_mode',
+};
+const DBX_FILE_PATH = '/shuffle-tasks-data.json';
+let dbx = null;
+let dbxAuth = null;
+let dbxUploadTimer = null;
+
+function currentUrl() {
+  return location.href.split('?')[0].split('#')[0];
+}
+
+function isDropboxConnected() {
+  return !!(localStorage.getItem(DBX_LS.appkey) && localStorage.getItem(DBX_LS.refresh));
+}
+
+async function initDropbox() {
+  const appKey = localStorage.getItem(DBX_LS.appkey);
+  const refresh = localStorage.getItem(DBX_LS.refresh);
+  if (!appKey || !refresh || typeof Dropbox === 'undefined') return false;
+  dbxAuth = new Dropbox.DropboxAuth({ clientId: appKey });
+  dbxAuth.setRefreshToken(refresh);
+  dbx = new Dropbox.Dropbox({ auth: dbxAuth });
+  return true;
+}
+
+async function startDropboxAuth() {
+  const input = document.getElementById('dbxAppKeyInput');
+  const appKey = input.value.trim();
+  if (!appKey) { setDbxMsg('App Keyを入力してください', true); return; }
+  localStorage.setItem(DBX_LS.appkey, appKey);
+  dbxAuth = new Dropbox.DropboxAuth({ clientId: appKey });
+  const redirectUri = currentUrl();
+  const authUrl = await dbxAuth.getAuthenticationUrl(redirectUri, undefined, 'code', 'offline', undefined, undefined, true);
+  localStorage.setItem(DBX_LS.verifier, dbxAuth.codeVerifier);
+  window.location.href = authUrl;
+}
+
+async function handleDropboxOAuthCallback() {
+  const params = new URLSearchParams(location.search);
+  const code = params.get('code');
+  if (!code) return false;
+  history.replaceState({}, document.title, location.pathname);
+  const appKey = localStorage.getItem(DBX_LS.appkey);
+  const verifier = localStorage.getItem(DBX_LS.verifier);
+  if (!appKey || !verifier) return false;
+  dbxAuth = new Dropbox.DropboxAuth({ clientId: appKey });
+  dbxAuth.codeVerifier = verifier;
+  try {
+    const res = await dbxAuth.getAccessTokenFromCode(currentUrl(), code);
+    localStorage.setItem(DBX_LS.refresh, res.result.refresh_token);
+    localStorage.removeItem(DBX_LS.verifier);
+    return true;
+  } catch (e) {
+    console.error(e);
+    return false;
+  }
+}
+
+function disconnectDropbox() {
+  customConfirm('Dropboxとの連携を解除しますか?データはDropbox上に残りますが、このデバイスからは同期されなくなります。', () => {
+    [DBX_LS.appkey, DBX_LS.refresh, DBX_LS.verifier].forEach(k => localStorage.removeItem(k));
+    dbx = null; dbxAuth = null;
+    renderSettingsUI();
+  });
+}
+
+async function uploadToDropbox() {
+  if (!dbx) return;
+  const payload = JSON.stringify({ cards, points, locations: LOCATIONS, savedAt: Date.now() });
+  try {
+    await dbx.filesUpload({ path: DBX_FILE_PATH, contents: payload, mode: { '.tag': 'overwrite' } });
+    setDbxMsg('同期しました');
+  } catch (e) {
+    console.error(e);
+    setDbxMsg('同期に失敗しました', true);
+  }
+}
+
+function scheduleDropboxUpload() {
+  if (!isDropboxConnected() || !dbx) return;
+  clearTimeout(dbxUploadTimer);
+  dbxUploadTimer = setTimeout(uploadToDropbox, 1500);
+}
+
+async function downloadFromDropbox() {
+  if (!dbx) return null;
+  try {
+    const res = await dbx.filesDownload({ path: DBX_FILE_PATH });
+    const text = await res.result.fileBlob.text();
+    return JSON.parse(text);
+  } catch (e) {
+    // ファイルがまだ存在しない(初回連携時など)は静かに無視する
+    return null;
+  }
+}
+
+function setDbxMsg(msg, isError) {
+  const el = document.getElementById('dbxSyncMsg');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.color = isError ? 'var(--red-text)' : 'var(--text-secondary)';
+}
+
+function renderSettingsUI() {
+  const connected = isDropboxConnected();
+  const statusText = document.getElementById('dbxStatusText');
+  const connectForm = document.getElementById('dbxConnectForm');
+  const connectedActions = document.getElementById('dbxConnectedActions');
+  if (statusText) statusText.textContent = connected
+    ? '接続済みです。ブラウザとiPhoneでタスクを共有できます。'
+    : '未接続です。ブラウザとiPhoneでタスクを共有できます。';
+  if (connectForm) connectForm.style.display = connected ? 'none' : 'block';
+  if (connectedActions) connectedActions.style.display = connected ? 'block' : 'none';
+
+  const notifBtn = document.getElementById('notifEnableBtn');
+  const notifStatus = document.getElementById('notifStatusText');
+  if (notifBtn && typeof Notification !== 'undefined') {
+    if (Notification.permission === 'granted') {
+      notifBtn.textContent = '通知は有効です';
+      notifBtn.disabled = true;
+    } else {
+      notifBtn.textContent = '通知を有効にする';
+      notifBtn.disabled = false;
+    }
+  } else if (notifStatus) {
+    notifStatus.textContent = 'このブラウザは通知に対応していません。';
+    if (notifBtn) notifBtn.style.display = 'none';
+  }
+}
+
+const WANT_LABELS = ['やりたくない','やれなくもない','らくらく','自発的にやりたい'];
+
+// ===== 想定作業時間(15分刻み、1時間超は30分刻み) =====
+const TIME_OPTIONS = [15, 30, 45, 60, 90, 120, 150, 180, 210, 240];
+function formatMinutes(m) {
+  if (m < 60) return `${m}分`;
+  const h = Math.floor(m / 60), rem = m % 60;
+  return rem === 0 ? `${h}時間` : `${h}時間${rem}分`;
+}
+function formatClock(totalMinutes) {
+  // 分を2桁固定にして、カウントダウン中も桁数がブレないようにする(例:09:58)
+  const m = Math.floor(totalMinutes);
+  const s = Math.round((totalMinutes - m) * 60);
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+function nearestTimeOption(v) {
+  if (!v) return TIME_OPTIONS[0];
+  let best = TIME_OPTIONS[0];
+  let bestDiff = Math.abs(v - best);
+  for (const t of TIME_OPTIONS) {
+    const diff = Math.abs(v - t);
+    if (diff < bestDiff) { best = t; bestDiff = diff; }
+  }
+  return best;
+}
+function populateTimeSelect(selectEl, currentValue) {
+  selectEl.innerHTML = '';
+  let opts = [...TIME_OPTIONS];
+  if (currentValue && !opts.includes(currentValue)) {
+    opts.push(currentValue);
+    opts.sort((a,b) => a - b);
+  }
+  opts.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m; opt.textContent = formatMinutes(m);
+    selectEl.appendChild(opt);
+  });
+  selectEl.value = currentValue || TIME_OPTIONS[0];
+}
+// 基礎重み(出現しやすさの相対値)。want=2(らくらく)が最高、want=3(自発的にやりたい)が最低。
+const BASE_WEIGHT = { 0: 3, 1: 5, 2: 10, 3: 1 };
+
+// 控えの厚み表現:手前THICKNESS_REAL_CAP枚だけ本物のカードとして先読みし(繰り上がりの継続性用)、
+// それより奥はTHICKNESS_CAPまで、中身を持たない軽量なダミーで枚数の分厚さだけ表現する
+const THICKNESS_CAP = 20;
+const THICKNESS_REAL_CAP = 5;
+function layerOffset(i) {
+  // 手前5枚は今までのリズム(8,17,26,35,44)、それ以降は薄い刻みで奥行きだけ足す
+  if (i < 5) return 8 + i * 9;
+  return 44 + (i - 4) * 2;
+}
+const LOCATIONS_KEY = 'shuffle_tasks_locations_v1';
+function loadLocations() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(LOCATIONS_KEY));
+    if (saved && saved.length) return saved;
+  } catch(e) {}
+  return ['起床直後','帰宅直後','机','移動中'];
+}
+function saveLocations(list) { localStorage.setItem(LOCATIONS_KEY, JSON.stringify(list)); scheduleDropboxUpload(); }
+let LOCATIONS = loadLocations();
+
+function loadCards() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  // 保存キーが全く存在しない(=一度も保存されたことがない、本当の初回起動)時だけサンプルを出す。
+  // 「保存はされているが0枚(全部処理し終えた)」場合は、そのまま空のデッキとして扱う
+  if (raw === null) return seedCards();
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : seedCards();
+  } catch (e) {
+    return seedCards();
+  }
+}
+function saveCards(cards) { localStorage.setItem(STORAGE_KEY, JSON.stringify(cards)); scheduleDropboxUpload(); }
+
+function loadPoints() {
+  try { return JSON.parse(localStorage.getItem(POINTS_KEY)) || {task:0, time:0, lastTick: Date.now()}; }
+  catch(e){ return {task:0, time:0, lastTick: Date.now()}; }
+}
+function savePoints(p){ localStorage.setItem(POINTS_KEY, JSON.stringify(p)); scheduleDropboxUpload(); }
+
+function seedCards() {
+  // 初回起動時のサンプル
+  return [
+    {id: uid(), title:'上着をハンガーにかける', time:1, want:2, location:'帰宅直後', loopType:'daily', order:1, parentId:null, skipStreak:0, availableAfter:0},
+    {id: uid(), title:'YouTubeを見る(10分)', time:10, want:3, location:'', loopType:'anytime', order:null, parentId:null, skipStreak:0, availableAfter:0},
+    {id: uid(), title:'請求書を1件処理する', time:15, want:0, location:'', loopType:'none', order:null, parentId:null, skipStreak:0, availableAfter:0},
+  ];
+}
+function uid(){ return Math.random().toString(36).slice(2,10); }
+
+let cards = loadCards();
+let points = loadPoints();
+
+function customConfirm(message, onYes) {
+  document.getElementById('confirmMsg').textContent = message;
+  document.getElementById('confirmOverlay').classList.add('open');
+  const okBtn = document.getElementById('confirmOkBtn');
+  const cancelBtn = document.getElementById('confirmCancelBtn');
+  const cleanup = () => {
+    document.getElementById('confirmOverlay').classList.remove('open');
+    okBtn.onclick = null; cancelBtn.onclick = null;
+  };
+  okBtn.onclick = () => { cleanup(); onYes(); };
+  cancelBtn.onclick = () => { cleanup(); };
+}
+let currentLocation = localStorage.getItem(LOC_KEY) || '';
+let currentCard = null; // 今表示中のカード
+let nextCard = null; // lookaheadQueueの先頭(互換のため維持)
+let frontFace = null; // 現在の前面カードのDOM参照一式
+let lookaheadQueue = []; // 控え全枚数ぶん、あらかじめ先読みしておいた本物のカードデータ
+let ghostFaces = []; // lookaheadQueueに対応する、控え側のDOM参照一式(先頭以外は見た目だけマスク)
+let justSkippedId = null; // 直前にスキップしたカードのID。直後の1サイクルだけ控えの選出から除外する
+let isTransitioning = false; // 完了・スキップのアニメーション中は、連打による二重発火を防ぐためtrueにする
+let pendingRevealAnim = false; // タスク登録直後などに、めくり演出を出すフラグ
+let pendingShuffleAnim = false; // 新規タスク登録・場所切り替え時、デッキ全体をシャッフルする演出を出すフラグ
+let pendingPromoteAnim = false; // 完了・スキップ後、控えから繰り上がる演出を出すフラグ
+let timerInterval = null;
+let secondsLeft = 0;
+
+// ===== ポイントの時間経過分(セーフティネット、上限あり) =====
+function tickTimePoints() {
+  const now = Date.now();
+  const elapsedMin = (now - (points.lastTick || now)) / 60000;
+  if (elapsedMin >= 30) {
+    const ticks = Math.floor(elapsedMin / 30);
+    points.time = Math.min(2, points.time + ticks * 0.2); // 1日上限の目安として2でキャップ(簡易実装)
+    points.lastTick = now;
+    savePoints(points);
+  }
+}
+
+function totalPoints() { return Math.round((points.task + points.time) * 10) / 10; }
+
+const GACHA_COST = 3; // ポイント使用ボタンで消費する固定コスト
+
+function renderPoints() {
+  const valueEl = document.getElementById('pointsUseValue');
+  if (valueEl) valueEl.textContent = `${totalPoints()}P`;
+  const useBtn = document.getElementById('pointsUseBtn');
+  if (useBtn) useBtn.disabled = totalPoints() < GACHA_COST;
+
+  const countdownEl = document.getElementById('pointsCountdown');
+  if (points.time >= 2) {
+    // 1日の上限に達している間は、次の加算がないのでカウントダウンを表示しない
+    countdownEl.textContent = '';
+    countdownEl.style.display = 'none';
+    return;
+  }
+  countdownEl.style.display = '';
+  const now = Date.now();
+  const nextTickAt = (points.lastTick || now) + 30 * 60000;
+  const msLeft = Math.max(0, nextTickAt - now);
+  const m = Math.floor(msLeft / 60000);
+  const s = Math.floor((msLeft % 60000) / 1000);
+  countdownEl.textContent = `次の加算 ${m}:${String(s).padStart(2,'0')}`;
+}
+
+function spendPoints(cost) {
+  let remaining = cost;
+  const fromTask = Math.min(points.task, remaining);
+  points.task -= fromTask;
+  remaining -= fromTask;
+  if (remaining > 0) {
+    const fromTime = Math.min(points.time, remaining);
+    points.time -= fromTime;
+  }
+  savePoints(points);
+}
+
+// ポイントを消費して、次に繰り上がるカードを「自発的にやりたい」ランクに差し替える。
+// 該当カードが無ければポイントは消費しないが、押したこと自体への反応は必ず返す
+function playPointsSpendFeedback(success) {
+  const btn = document.getElementById('pointsUseBtn');
+  if (!btn) return;
+  btn.classList.remove('shake', 'shake-fail');
+  void btn.offsetWidth; // アニメーションの再トリガー用
+  btn.classList.add(success ? 'shake' : 'shake-fail');
+  btn.addEventListener('animationend', () => btn.classList.remove('shake', 'shake-fail'), { once: true });
+}
+
+function useGachaPoints() {
+  if (totalPoints() < GACHA_COST) return; // これはボタン自体がdisabledになるので反応不要
+  const now = Date.now();
+
+  // まず、既に控えの中(先頭以外)にいる「自発的にやりたい」カードがないか探す。
+  // あれば新規に呼び込むのではなく、それを先頭へ移動させる
+  const idxInQueue = lookaheadQueue.findIndex((c, i) => i > 0 && c.want === 3);
+  const stack = document.querySelector('#stackArea .stack');
+
+  if (idxInQueue > 0) {
+    spendPoints(GACHA_COST);
+    if (stack) {
+      // 先頭(index0)と、対象のカードを入れ替える
+      const oldHeadFace = ghostFaces[0];
+      const targetFace = ghostFaces[idxInQueue];
+
+      oldHeadFace.el.classList.add('masked');
+      oldHeadFace.el.style.transform = `translate(${layerOffset(idxInQueue)}px, ${layerOffset(idxInQueue)}px)`;
+
+      targetFace.el.classList.remove('masked');
+      targetFace.el.style.transform = 'translate(8px, 8px)';
+
+      ghostFaces[0] = targetFace;
+      ghostFaces[idxInQueue] = oldHeadFace;
+      lookaheadQueue[0] = ghostFaces[0].data;
+      lookaheadQueue[idxInQueue] = ghostFaces[idxInQueue].data;
+      nextCard = lookaheadQueue[0];
+
+      const remainingTotal = Math.min(THICKNESS_CAP, Math.max(0, cards.length - 1));
+      ghostFaces.forEach((gf, i) => { gf.el.style.zIndex = String(remainingTotal - i); });
+    }
+    renderPoints();
+    playPointsSpendFeedback(true);
+    return;
+  }
+
+  // 控えの中にいなければ、cards全体から新たに呼び込む
+  const excludeIds = [currentCard ? currentCard.id : null, ...lookaheadQueue.map(d => d.id)].filter(Boolean);
+  const candidate = cards.find(c => c.want === 3 && !excludeIds.includes(c.id) && !isChildBlocked(c) &&
+    (!c.availableAfter || c.availableAfter <= now));
+  if (!candidate) {
+    // 該当する「自発的にやりたい」タスクが無い(登録されていない、または既に前面/控えにいる)場合。
+    // ポイントは消費しないが、押したことへの反応(失敗の合図)は返す
+    playPointsSpendFeedback(false);
+    return;
+  }
+
+  spendPoints(GACHA_COST);
+
+  if (stack) {
+    if (ghostFaces.length > 0) {
+      ghostFaces[0].el.remove();
+      ghostFaces.shift();
+      lookaheadQueue.shift();
+    }
+    const face = buildCardFace(candidate);
+    face.el.classList.add('peek'); // 先頭に来るのでマスクしない
+    face.el.style.transform = 'translate(8px, 8px)';
+    face.el.style.pointerEvents = 'none';
+    stack.appendChild(face.el);
+    ghostFaces.unshift({ data: candidate, ...face });
+    lookaheadQueue.unshift(candidate);
+    nextCard = candidate;
+
+    const remainingTotal = Math.min(THICKNESS_CAP, Math.max(0, cards.length - 1));
+    ghostFaces.forEach((gf, i) => { gf.el.style.zIndex = String(remainingTotal - i); });
+  }
+  renderPoints();
+  playPointsSpendFeedback(true);
+}
+
+// ポイント表示を毎秒更新し、加算タイミングが来たら自動で反映する
+setInterval(() => {
+  tickTimePoints();
+  renderPoints();
+}, 1000);
+
+// ===== 場所セレクタ =====
+function renderLocationMenu() {
+  const menu = document.getElementById('locationMenu');
+  menu.innerHTML = '';
+  const all = ['指定なし', ...LOCATIONS];
+  all.forEach((loc, idx) => {
+    const val = loc === '指定なし' ? '' : loc;
+    const row = document.createElement('div');
+    row.style.display = 'flex';
+    row.style.alignItems = 'center';
+    row.style.justifyContent = 'space-between';
+    row.style.gap = '4px';
+    row.classList.toggle('active', val === currentLocation);
+
+    const label = document.createElement('span');
+    label.textContent = loc;
+    label.style.flex = '1';
+    label.style.cursor = 'pointer';
+    label.style.overflow = 'hidden';
+    label.style.textOverflow = 'ellipsis';
+    label.style.whiteSpace = 'nowrap';
+    let clickTimer = null;
+    let longPressTimer = null;
+    let longPressTriggered = false;
+    let touchStartX = 0, touchStartY = 0;
+    label.onclick = () => {
+      if (longPressTriggered) { longPressTriggered = false; return; }
+      if (clickTimer) { clearTimeout(clickTimer); clickTimer = null; return; }
+      clickTimer = setTimeout(() => {
+        clickTimer = null;
+        currentLocation = val;
+        localStorage.setItem(LOC_KEY, currentLocation);
+        document.getElementById('locationLabel').textContent = `今いる場所:${loc}`;
+        menu.classList.remove('open');
+        pendingShuffleAnim = true; // 場所切り替え時もデッキがシャッフルされる演出を出す
+        drawCard();
+      }, 250);
+    };
+    row.appendChild(label);
+
+    if (val !== '') {
+      row.dataset.loc = loc;
+      const locIdx = LOCATIONS.indexOf(loc); // LOCATIONS配列上の実インデックス
+
+      const commitRename = (newName) => {
+        const trimmed = (newName || '').trim();
+        if (!trimmed || (trimmed !== loc && LOCATIONS.includes(trimmed))) {
+          renderLocationMenu();
+          document.getElementById('locationMenu').classList.add('open');
+          return;
+        }
+        LOCATIONS[locIdx] = trimmed;
+        saveLocations(LOCATIONS);
+        cards = cards.map(c => c.location === loc ? {...c, location: trimmed} : c);
+        saveCards(cards);
+        if (currentLocation === loc) {
+          currentLocation = trimmed;
+          localStorage.setItem(LOC_KEY, currentLocation);
+          document.getElementById('locationLabel').textContent = `今いる場所:${trimmed}`;
+        }
+        renderLocationMenu();
+        populateLocationSelect();
+        document.getElementById('locationMenu').classList.add('open');
+        drawCard();
+      };
+
+      const startRenameUI = () => {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = loc;
+        input.style.flex = '1';
+        input.style.font = 'inherit';
+        input.style.fontSize = '16px';
+        input.style.border = '1px solid var(--border-strong)';
+        input.style.borderRadius = '4px';
+        input.style.padding = '2px 4px';
+        input.style.width = '100%';
+        row.replaceChild(input, label);
+        input.focus();
+        input.select();
+        let done = false;
+        const finish = () => {
+          if (done) return;
+          done = true;
+          commitRename(input.value);
+        };
+        input.addEventListener('keydown', (ev) => {
+          if (ev.key === 'Enter') { ev.preventDefault(); finish(); }
+          if (ev.key === 'Escape') { done = true; renderLocationMenu(); document.getElementById('locationMenu').classList.add('open'); }
+        });
+        input.addEventListener('blur', finish);
+      };
+
+      label.ondblclick = (e) => {
+        e.stopPropagation();
+        if (clickTimer) { clearTimeout(clickTimer); clickTimer = null; }
+        startRenameUI();
+      };
+
+      // タッチ操作向け:長押しでリネーム開始
+      label.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'mouse') return;
+        touchStartX = e.clientX; touchStartY = e.clientY;
+        longPressTimer = setTimeout(() => {
+          longPressTimer = null;
+          longPressTriggered = true;
+          if (clickTimer) { clearTimeout(clickTimer); clickTimer = null; }
+          startRenameUI();
+        }, 500);
+      });
+      label.addEventListener('pointermove', (e) => {
+        if (!longPressTimer) return;
+        if (Math.abs(e.clientX - touchStartX) > 10 || Math.abs(e.clientY - touchStartY) > 10) {
+          clearTimeout(longPressTimer); longPressTimer = null;
+        }
+      });
+      const cancelLongPress = () => { if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; } };
+      label.addEventListener('pointerup', cancelLongPress);
+      label.addEventListener('pointercancel', cancelLongPress);
+      label.addEventListener('pointerleave', cancelLongPress);
+
+      const mkBtn = (text, title, onClick) => {
+        const b = document.createElement('span');
+        b.textContent = text;
+        b.title = title;
+        b.style.cursor = 'pointer';
+        b.style.opacity = '0.5';
+        b.style.fontSize = '12px';
+        b.style.padding = '0 3px';
+        b.onclick = (e) => { e.stopPropagation(); onClick(); };
+        return b;
+      };
+
+      // ドラッグハンドル(並べ替え)
+      const handle = document.createElement('span');
+      handle.textContent = '⠿';
+      handle.title = 'ドラッグで並べ替え';
+      handle.style.cursor = 'grab';
+      handle.style.opacity = '0.5';
+      handle.style.fontSize = '14px';
+      handle.style.padding = '0 4px';
+      handle.style.touchAction = 'none';
+      handle.addEventListener('pointerdown', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        handle.setPointerCapture(e.pointerId);
+        let dragOrder = [...LOCATIONS];
+        row.style.opacity = '0.4';
+        const menuEl = document.getElementById('locationMenu');
+
+        const onMove = (ev) => {
+          const elem = document.elementFromPoint(ev.clientX, ev.clientY);
+          const targetRow = elem && elem.closest ? elem.closest('[data-loc]') : null;
+          if (targetRow && targetRow !== row && menuEl.contains(targetRow)) {
+            const fromIdx = dragOrder.indexOf(loc);
+            const toIdx = dragOrder.indexOf(targetRow.dataset.loc);
+            if (fromIdx !== -1 && toIdx !== -1 && fromIdx !== toIdx) {
+              dragOrder.splice(fromIdx, 1);
+              dragOrder.splice(toIdx, 0, loc);
+              if (fromIdx < toIdx) {
+                menuEl.insertBefore(row, targetRow.nextSibling);
+              } else {
+                menuEl.insertBefore(row, targetRow);
+              }
+            }
+          }
+        };
+        const onUp = (ev) => {
+          handle.releasePointerCapture(ev.pointerId);
+          handle.removeEventListener('pointermove', onMove);
+          handle.removeEventListener('pointerup', onUp);
+          row.style.opacity = '';
+          LOCATIONS = dragOrder;
+          saveLocations(LOCATIONS);
+          renderLocationMenu();
+          document.getElementById('locationMenu').classList.add('open');
+        };
+        handle.addEventListener('pointermove', onMove);
+        handle.addEventListener('pointerup', onUp);
+      });
+
+      const del = mkBtn('×', '削除', () => {
+        customConfirm(`「${loc}」を削除しますか?この場所を使っているカードは「指定なし」に変わります。`, () => {
+          LOCATIONS = LOCATIONS.filter(l => l !== loc);
+          saveLocations(LOCATIONS);
+          cards = cards.map(c => c.location === loc ? {...c, location:''} : c);
+          saveCards(cards);
+          if (currentLocation === loc) {
+            currentLocation = '';
+            localStorage.setItem(LOC_KEY, '');
+            document.getElementById('locationLabel').textContent = '今いる場所:指定なし';
+          }
+          renderLocationMenu();
+          populateLocationSelect();
+          drawCard();
+        });
+      });
+
+      row.appendChild(handle);
+      row.appendChild(del);
+    }
+    menu.appendChild(row);
+  });
+
+  const addRow = document.createElement('div');
+  addRow.textContent = '+ 新しい場所を追加';
+  addRow.style.color = 'var(--text-secondary)';
+  addRow.style.cursor = 'pointer';
+  addRow.onclick = (e) => {
+    e.stopPropagation();
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = '場所の名前(例:電車)';
+    input.style.width = '100%';
+    input.style.fontSize = '16px';
+    input.style.border = '1px solid var(--border-strong)';
+    input.style.borderRadius = '4px';
+    input.style.padding = '4px 6px';
+    input.style.boxSizing = 'border-box';
+    menu.replaceChild(input, addRow);
+    input.focus();
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      const trimmed = input.value.trim();
+      if (trimmed && !LOCATIONS.includes(trimmed)) {
+        LOCATIONS.push(trimmed);
+        saveLocations(LOCATIONS);
+        populateLocationSelect();
+      }
+      renderLocationMenu();
+      document.getElementById('locationMenu').classList.add('open');
+    };
+    input.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Enter') { ev.preventDefault(); finish(); }
+      if (ev.key === 'Escape') { done = true; renderLocationMenu(); document.getElementById('locationMenu').classList.add('open'); }
+    });
+    input.addEventListener('blur', finish);
+  };
+  menu.appendChild(addRow);
+}
+document.getElementById('locationPill').onclick = () => {
+  document.getElementById('locationMenu').classList.toggle('open');
+};
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.location-wrap')) {
+    document.getElementById('locationMenu').classList.remove('open');
+  }
+});
+
+// ===== カード選択ロジック =====
+function pickCard(excludeIds, allowFallback) {
+  const excludeSet = excludeIds == null ? null : new Set(Array.isArray(excludeIds) ? excludeIds : [excludeIds]);
+  const now = Date.now();
+  const hardAlive = cards.filter(c => !isChildBlocked(c) && (!c.availableAfter || c.availableAfter <= now));
+  let alive = hardAlive.filter(c => !excludeSet || !excludeSet.has(c.id));
+  // 「直前にスキップしたカードを避ける」等のソフトな除外が原因で候補がゼロになる場合、
+  // 呼び出し側が明示的に許可していれば除外を無視して救済する(先読みキューの重複防止には使わない)
+  if (alive.length === 0 && allowFallback) alive = hardAlive;
+  if (alive.length === 0) return null;
+
+  // 1. 現在地に紐づくカードがあれば優先(順序があれば順序順、なければ同ランク内ランダム)
+  const locMatches = alive.filter(c => currentLocation && c.location === currentLocation);
+  const pool = locMatches.length > 0 ? locMatches : alive.filter(c => !c.location || !currentLocation || c.location === '');
+  const usePool = locMatches.length > 0 ? locMatches : alive;
+
+  // 順序付きカード(order有り)があれば最小orderを最優先
+  const ordered = usePool.filter(c => c.order != null).sort((a,b)=>a.order-b.order);
+  if (locMatches.length > 0 && ordered.length > 0) {
+    return ordered[0];
+  }
+
+  // 2. want重み + ポイントによる want=3 の確率補正(上限あり)
+  const boost = Math.min(3, 1 + totalPoints() * 0.3); // want=3の重みに掛ける倍率、上限3倍程度でキャップ
+  const weighted = [];
+  usePool.forEach(c => {
+    let w = BASE_WEIGHT[c.want] ?? 1;
+    if (c.want === 3) w = w * boost;
+    weighted.push({card: c, w});
+  });
+  const totalW = weighted.reduce((s,x)=>s+x.w,0);
+  let r = Math.random() * totalW;
+  for (const item of weighted) {
+    r -= item.w;
+    if (r <= 0) return item.card;
+  }
+  return weighted[0] ? weighted[0].card : null;
+}
+
+function isChildBlocked(c) {
+  // 親を持つ子タスクで、自分より小さいorderの兄弟が未完了なら出さない
+  if (c.parentId == null || c.order == null) return false;
+  const siblings = cards.filter(s => s.parentId === c.parentId && s.order < c.order);
+  return siblings.length > 0;
+}
+
+// 控えの全枚数ぶん、本物のカードをあらかじめ重複なく先読みしておく
+function buildLookaheadQueue(count, excludeIds) {
+  const queue = [];
+  const excludeSet = new Set(excludeIds);
+  for (let i = 0; i < count; i++) {
+    const picked = pickCard([...excludeSet]);
+    if (!picked) break;
+    queue.push(picked);
+    excludeSet.add(picked.id);
+  }
+  return queue;
+}
+
+// ===== カード表示 =====
+function drawCard() {
+  clearTimer();
+  tickTimePoints();
+  renderPoints();
+  currentCard = pickCard();
+  const remaining = currentCard ? Math.min(THICKNESS_CAP, Math.max(0, cards.length - 1)) : 0;
+  const realCount = Math.min(THICKNESS_REAL_CAP, remaining);
+  lookaheadQueue = currentCard ? buildLookaheadQueue(realCount, [currentCard.id]) : [];
+  nextCard = lookaheadQueue[0] || null; // 互換のため維持
+  renderStack();
+}
+
+// 完了・スキップ後、あらかじめ確定していた次のカードをそのまま前面に昇格させる。
+// ランダムな再抽選をしないことで、「控えにいたのと同じカードが繰り上がる」体験を保証する
+function promoteNextCard() {
+  clearTimer();
+  tickTimePoints();
+  renderPoints();
+
+  // 防御的クリーンアップ:先頭以外の控えも含めて、もはやcardsに実在しない・出せない
+  // データを指しているものがあれば、幽霊化する前にDOMごと取り除く
+  for (let i = ghostFaces.length - 1; i >= 0; i--) {
+    const gf = ghostFaces[i];
+    const stillExists = cards.some(c => c.id === gf.data.id) && !isChildBlocked(gf.data) &&
+      (!gf.data.availableAfter || gf.data.availableAfter <= Date.now());
+    if (!stillExists) {
+      gf.el.remove();
+      ghostFaces.splice(i, 1);
+      lookaheadQueue.splice(i, 1);
+    }
+  }
+
+  // 掃除した後、残った控えの位置とz-indexを新しいインデックスに合わせて再同期する
+  if (ghostFaces.length > 0) {
+    ghostFaces.forEach((gf, i) => {
+      const offset = layerOffset(i);
+      gf.el.style.transform = `translate(${offset}px, ${offset}px)`;
+      gf.el.style.zIndex = String(ghostFaces.length - i);
+    });
+  }
+
+  const headValid = ghostFaces.length > 0 && lookaheadQueue.length > 0 &&
+    ghostFaces[0].data.id === lookaheadQueue[0].id &&
+    cards.some(c => c.id === lookaheadQueue[0].id) &&
+    !isChildBlocked(lookaheadQueue[0]) &&
+    (!lookaheadQueue[0].availableAfter || lookaheadQueue[0].availableAfter <= Date.now());
+
+  if (headValid) {
+    // 先頭(ghostFaces[0])を作り直さずそのまま前面に昇格させる
+    const promoted = ghostFaces[0];
+    currentCard = promoted.data;
+
+    promoted.el.classList.remove('peek', 'masked');
+    promoted.el.style.pointerEvents = '';
+    promoted.el.style.zIndex = '10';
+    // transform\u306f\u65e2\u306bshiftGhostsForward\u3067(0,0)\u3078\u5411\u3051\u3066\u52d5\u304b\u3057\u59cb\u3081\u3066\u3044\u308b\u306e\u3067\u3001\u3053\u3053\u3067\u306f\u89e6\u3089\u306a\u3044
+    promoted.editBtn.onclick = () => openEdit(currentCard);
+    promoted.doneBtn.onclick = () => completeCard(currentCard);
+    promoted.skipBtn.onclick = () => skipCard(currentCard);
+    if (promoted.decBtn) promoted.decBtn.onclick = () => openDecompose(currentCard);
+
+    frontFace = promoted;
+    startTimer(promoted.countEl, currentCard.time);
+
+    // \u6b8b\u308a\u306eghostFaces\u306f1\u3064\u7e70\u308a\u4e0a\u304c\u308a(index\u304c1\u306f\u30de\u30b9\u30af\u3092\u5916\u3057\u3066\u516c\u958b\u3059\u308b)\u3001\u672b\u5c3e\u306b\u65b0\u3057\u3044\u5148\u8aad\u307f\u3092\u8ffd\u52a0\u3059\u308b(\u672c\u7269\u306e\u5148\u8aad\u307f\u306fTHICKNESS_REAL_CAP\u679a\u307e\u3067)
+    const restFaces = ghostFaces.slice(1);
+    const restData = lookaheadQueue.slice(1);
+
+    const remainingTotal = Math.min(THICKNESS_CAP, Math.max(0, cards.length - 1));
+    const realCap = Math.min(THICKNESS_REAL_CAP, remainingTotal);
+    const excludeIds = [currentCard.id, ...restData.map(d => d.id)];
+    if (justSkippedId) excludeIds.push(justSkippedId);
+    let newTailData = null;
+    if (restFaces.length < realCap) {
+      newTailData = pickCard(excludeIds);
+    }
+
+    const stack = document.querySelector('#stackArea .stack');
+    if (newTailData && stack) {
+      const face = buildCardFace(newTailData);
+      const willBeIndexZero = restFaces.length === 0; // 追加した瞬間、先頭(次に繰り上がる位置)になるかどうか
+      face.el.classList.add('peek');
+      if (!willBeIndexZero) face.el.classList.add('masked');
+      const offset = layerOffset(restFaces.length);
+      face.el.style.transform = `translate(${offset}px, ${offset}px)`;
+      face.el.style.zIndex = '1';
+      face.el.style.pointerEvents = 'none';
+      face.el.style.opacity = '0';
+      stack.appendChild(face.el);
+      requestAnimationFrame(() => {
+        face.el.style.transition = 'opacity 0.25s ease';
+        face.el.style.opacity = '1';
+      });
+      restFaces.push({ data: newTailData, ...face });
+      restData.push(newTailData);
+    }
+
+    ghostFaces = restFaces;
+    lookaheadQueue = restData;
+    nextCard = lookaheadQueue[0] || null;
+    // z-index(\u91cd\u306a\u308a\u9806)\u3092\u65b0\u3057\u3044\u30a4\u30f3\u30c7\u30c3\u30af\u30b9\u306b\u5408\u308f\u305b\u3066\u5fc5\u305a\u518d\u8a08\u7b97\u3059\u308b(\u53e4\u3044\u5024\u306e\u307e\u307e\u653e\u7f6e\u3057\u306a\u3044)
+    ghostFaces.forEach((gf, i) => {
+      gf.el.style.zIndex = String(remainingTotal - i);
+    });
+
+    // \u672c\u7269\u306e\u5148\u8aad\u307f\u30ad\u30e5\u30fc\u3088\u308a\u5965\u306e\u30c0\u30df\u30fc\u5c64\u306f\u3001\u533f\u540d\u306e\u98fe\u308a\u306a\u306e\u3067\u4f5c\u308a\u76f4\u3057\u3066\u3082\u5b89\u3044(\u6bce\u56de\u524a\u9664\u3057\u3066\u73fe\u5728\u306e\u679a\u6570\u306b\u5408\u308f\u305b\u3066\u4f5c\u308a\u76f4\u3059)
+    if (stack) {
+      [...stack.querySelectorAll('.ghost')].forEach(g => g.remove());
+      for (let i = ghostFaces.length; i < remainingTotal; i++) {
+        const g = document.createElement('div');
+        g.className = 'ghost';
+        const offset = layerOffset(i);
+        g.style.transform = `translate(${offset}px, ${offset}px)`;
+        g.style.zIndex = String(remainingTotal - i);
+        stack.appendChild(g);
+      }
+    }
+  } else {
+    // \u30d5\u30a9\u30fc\u30eb\u30d0\u30c3\u30af:\u901a\u5e38\u306e\u518d\u62bd\u9078\u30fb\u518d\u63cf\u753b
+    currentCard = pickCard(justSkippedId ? [justSkippedId] : null, true);
+    const remaining = currentCard ? Math.min(THICKNESS_REAL_CAP, Math.max(0, cards.length - 1)) : 0;
+    const excludeForQueue = currentCard ? [currentCard.id] : [];
+    if (justSkippedId) excludeForQueue.push(justSkippedId);
+    lookaheadQueue = currentCard ? buildLookaheadQueue(remaining, excludeForQueue) : [];
+    nextCard = lookaheadQueue[0] || null;
+    renderStack();
+  }
+  justSkippedId = null;
+}
+
+// カードの中身(タイトル・時間・タイマー・ボタン列)を、前面用・控え用で共通の構造で作る
+function buildCardFace(cardData) {
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  const cardInner = document.createElement('div');
+  cardInner.className = `card-inner want-${cardData.want}`;
+
+  const topRow = document.createElement('div');
+  topRow.className = 'top-row';
+
+  const leftGroup = document.createElement('div');
+  leftGroup.className = 'top-row-left';
+
+  const locSpan = document.createElement('span');
+  locSpan.className = 'loc-span';
+  if (cardData.location) {
+    locSpan.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.4"/></svg><span>' + cardData.location + '</span>';
+  }
+  leftGroup.appendChild(locSpan);
+
+  // 分解済みタスクの場合、総ステップ数と現在の段階をドットで表す
+  if (cardData.parentId != null && cardData.order != null && cardData.totalSteps) {
+    const dotsWrap = document.createElement('div');
+    dotsWrap.className = 'step-dots';
+    const currentIdx = cardData.order - 1; // 0始まり
+    for (let i = 0; i < cardData.totalSteps; i++) {
+      const dot = document.createElement('span');
+      if (i < currentIdx) dot.className = 'step-dot done';
+      else if (i === currentIdx) dot.className = 'step-dot current';
+      else dot.className = 'step-dot future';
+      dotsWrap.appendChild(dot);
+    }
+    leftGroup.appendChild(dotsWrap);
+  }
+
+  const miniActions = document.createElement('div');
+  miniActions.className = 'actions-mini';
+  const editBtn = document.createElement('button');
+  editBtn.className = 'icon-btn';
+  editBtn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
+  miniActions.appendChild(editBtn);
+  topRow.appendChild(leftGroup);
+  topRow.appendChild(miniActions);
+
+  const center = document.createElement('div');
+  center.className = 'center';
+  const p1 = document.createElement('p'); p1.textContent = cardData.title;
+  const timerEl = document.createElement('div'); timerEl.className = 'timer';
+  const countEl = document.createElement('span'); countEl.className = 'timer-count';
+  countEl.textContent = formatClock(cardData.time); // カウントダウン開始前は満タンの時間を時計表記で表示
+  const totalEl = document.createElement('span'); totalEl.className = 'timer-total';
+  totalEl.textContent = ' / ' + formatClock(cardData.time);
+  timerEl.appendChild(countEl);
+  timerEl.appendChild(totalEl);
+  center.appendChild(p1); center.appendChild(timerEl);
+
+  const iconRow = document.createElement('div');
+  iconRow.className = 'icon-action-row';
+
+  const doneBtn = document.createElement('button');
+  doneBtn.className = 'icon-action-btn';
+  doneBtn.setAttribute('aria-label', '完了');
+  doneBtn.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>';
+
+  const skipBtn = document.createElement('button');
+  skipBtn.className = 'icon-action-btn';
+  skipBtn.setAttribute('aria-label', 'スキップ');
+  skipBtn.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M4 5v14l9-7z"/><path d="M13 5v14l9-7z"/></svg>';
+
+  iconRow.appendChild(doneBtn);
+  iconRow.appendChild(skipBtn);
+
+  cardInner.appendChild(topRow);
+  cardInner.appendChild(center);
+  card.appendChild(cardInner);
+
+  let decBtn = null;
+  const hasChildren = cards.some(x => x.parentId === cardData.id);
+  if (!hasChildren) {
+    decBtn = document.createElement('button');
+    decBtn.className = 'icon-action-btn';
+    decBtn.setAttribute('aria-label', '分解する');
+    // カード1枚が2枚に分かれるアイコン
+    decBtn.innerHTML = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><g transform="rotate(-9 6 12)"><path d="M3,5 L9,5 L7,9 L10,12 L7,15 L9,19 L3,19 Z"/></g><g transform="rotate(9 18 12)"><path d="M21,5 L15,5 L17,9 L14,12 L17,15 L15,19 L21,19 Z"/></g></svg>';
+    iconRow.appendChild(decBtn);
+  }
+
+  card.appendChild(iconRow);
+
+  return { el: card, timerEl, countEl, doneBtn, skipBtn, decBtn, editBtn };
+}
+
+function renderStack() {
+  const area = document.getElementById('stackArea');
+  area.innerHTML = '';
+  frontFace = null;
+  ghostFaces = [];
+
+  if (!currentCard) {
+    const msg = cards.length === 0 ? '\u30c7\u30c3\u30ad\u304c\u7a7a\u3067\u3059\u3002<br>\u4eca\u65e5\u306f\u3053\u3053\u307e\u3067\u3002' : '\u4eca\u51fa\u305b\u308b\u30ab\u30fc\u30c9\u304c\u3042\u308a\u307e\u305b\u3093\u3002<br>\u307e\u305f\u5f8c\u3067\u958b\u3044\u3066\u307f\u3066\u304f\u3060\u3055\u3044\u3002';
+    area.innerHTML = `<div class="empty-msg">${msg}</div>`;
+    return;
+  }
+
+  const stack = document.createElement('div');
+  stack.className = 'stack';
+  const showCutEffect = pendingShuffleAnim;
+  pendingShuffleAnim = false;
+
+  // \u63a7\u3048\u5168\u679a\u6570\u3076\u3093\u3001\u3042\u3089\u304b\u3058\u3081\u672c\u7269\u306e\u30ab\u30fc\u30c9\u3068\u3057\u3066\u7528\u610f\u3057\u3066\u304a\u304f\u3002\u624b\u524d\u306e1\u679a\u3060\u3051\u8272\u3068\u6587\u5b57\u3092\u898b\u305b\u3001
+  // \u305d\u308c\u3088\u308a\u5965\u306fCSS\u3067\u8986\u3044\u96a0\u3057\u3066\u898b\u305f\u76ee\u3060\u3051\u30c0\u30df\u30fc\u98a8\u306b\u3059\u308b(\u5b9f\u4f53\u306f\u305a\u3063\u3068\u672c\u7269\u306e\u307e\u307e)
+  const remaining = Math.min(THICKNESS_CAP, Math.max(0, cards.length - 1));
+  lookaheadQueue.forEach((cardData, i) => {
+    const face = buildCardFace(cardData);
+    face.el.classList.add('peek');
+    if (i > 0) face.el.classList.add('masked');
+    const offset = layerOffset(i);
+    face.el.style.transform = `translate(${offset}px, ${offset}px)`;
+    face.el.style.zIndex = String(remaining - i);
+    face.el.style.pointerEvents = 'none';
+    stack.appendChild(face.el);
+    ghostFaces.push({ data: cardData, ...face });
+  });
+
+  // \u672c\u7269\u306e\u5148\u8aad\u307f\u30ad\u30e5\u30fc\u3088\u308a\u5965(6\u679a\u76ee\u4ee5\u964d)\u306f\u3001\u4e2d\u8eab\u3092\u6301\u305f\u306a\u3044\u8efd\u91cf\u306a\u30c0\u30df\u30fc\u3067\u5206\u539a\u307f\u3060\u3051\u8868\u73fe\u3059\u308b
+  for (let i = lookaheadQueue.length; i < remaining; i++) {
+    const g = document.createElement('div');
+    g.className = 'ghost';
+    const offset = layerOffset(i);
+    g.style.transform = `translate(${offset}px, ${offset}px)`;
+    g.style.zIndex = String(remaining - i);
+    stack.appendChild(g);
+  }
+
+  const c = currentCard;
+  const face = buildCardFace(c);
+  const card = face.el;
+  if (pendingRevealAnim) {
+    card.classList.add('reveal');
+    pendingRevealAnim = false;
+  }
+  face.editBtn.onclick = () => openEdit(c);
+  face.doneBtn.onclick = () => completeCard(c);
+  face.skipBtn.onclick = () => skipCard(c);
+  if (face.decBtn) face.decBtn.onclick = () => openDecompose(c);
+
+  stack.appendChild(card);
+  frontFace = { data: c, ...face };
+  area.appendChild(stack);
+
+  if (showCutEffect) {
+    const cutCard = document.createElement('div');
+    cutCard.className = 'cut-card';
+    stack.appendChild(cutCard);
+    cutCard.addEventListener('animationend', () => cutCard.remove(), { once: true });
+
+    const cutCardIn = document.createElement('div');
+    cutCardIn.className = 'cut-card-in';
+    stack.appendChild(cutCardIn);
+    cutCardIn.addEventListener('animationend', () => cutCardIn.remove(), { once: true });
+
+    const cutCardIn2 = document.createElement('div');
+    cutCardIn2.className = 'cut-card-in2';
+    stack.appendChild(cutCardIn2);
+    cutCardIn2.addEventListener('animationend', () => cutCardIn2.remove(), { once: true });
+  }
+
+  startTimer(face.countEl, c.time);
+}
+
+
+// ===== 通知(ブラウザのNotification APIのみ。アプリを開いている間だけ動作する) =====
+function notifyTimeUp() {
+  if (typeof Notification === 'undefined' || Notification.permission !== 'granted' || !currentCard) return;
+  try {
+    const body = currentCard.want === 3 ? 'そろそろ終わりの時間です' : '目標時間になりました';
+    new Notification(currentCard.title, { body, tag: 'shuffle-tasks-timer' });
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+// ===== タイマー =====
+let timerElRef = null;
+function startTimer(el, minutes) {
+  timerElRef = el;
+  secondsLeft = Math.max(0, Math.round(minutes * 60));
+  updateTimerLabel();
+  timerInterval = setInterval(() => {
+    secondsLeft -= 1;
+    if (secondsLeft <= 0) {
+      secondsLeft = 0;
+      clearInterval(timerInterval);
+      if (timerElRef && currentCard) {
+        timerElRef.textContent = currentCard.want === 3 ? 'そろそろ終わりです' : '経過';
+      }
+      notifyTimeUp();
+      return;
+    }
+    updateTimerLabel();
+  }, 1000);
+}
+function updateTimerLabel() {
+  if (!timerElRef) return;
+  const m = Math.floor(secondsLeft/60);
+  const s = secondsLeft % 60;
+  // 分を2桁固定にして、桁数のブレ(9:58→10:12のような幅の変化)をなくす
+  timerElRef.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+function clearTimer() { if (timerInterval) clearInterval(timerInterval); }
+
+// 前面カードが去るのと同時に、控え全員を1枚分前へスライドさせる(山全体が押し出される動き)。
+// 1つ前に繰り上がる控えは、このタイミングでマスクを外して色と文字を見せる
+function shiftGhostsForward(durationMs) {
+  ghostFaces.forEach((gf, i) => {
+    gf.el.style.transition = `transform ${durationMs}ms ease`;
+    const newOffset = i === 0 ? 0 : 8 + (i - 1) * 9;
+    gf.el.style.transform = `translate(${newOffset}px, ${newOffset}px)`;
+    if (i === 1) {
+      gf.el.classList.remove('masked');
+    }
+  });
+}
+
+
+// ===== アクション =====
+function nextMidnight() {
+  const d = new Date();
+  d.setHours(24,0,0,0);
+  return d.getTime();
+}
+
+function completeCard(c) {
+  if (isTransitioning) return; // 連打による二重発火を防ぐ
+  isTransitioning = true;
+  const doComplete = () => {
+    // ポイント加算(want=2は軽め、それ以外は達成価値を高めに)
+    const gain = c.want === 2 ? 0.5 : 1;
+    if (c.want !== 3) { // 報酬系の消化はタスクポイントに数えない
+      points.task += gain;
+      savePoints(points);
+    }
+    cards = cards.filter(x => x.id !== c.id);
+    if (c.loopType === 'anytime') {
+      // 何度でも:完了直後、即座にまた出現候補に戻す
+      cards.push({...c, id: uid(), skipStreak:0, availableAfter:0});
+    } else if (c.loopType === 'daily') {
+      // 1日1回:翌日0時まで出現しないカードとして戻す
+      cards.push({...c, id: uid(), skipStreak:0, availableAfter: nextMidnight()});
+    }
+    // loopType 'none' はそのまま消える
+    saveCards(cards);
+    promoteNextCard();
+    cardEl.remove(); // 退場アニメーション後の古い要素をDOMから確実に取り除く
+    isTransitioning = false;
+  };
+  const cardEl = frontFace ? frontFace.el : null;
+  if (cardEl) {
+    clearTimer();
+    cardEl.classList.add('fly-out');
+    shiftGhostsForward(380);
+    cardEl.addEventListener('animationend', doComplete, { once: true });
+  } else {
+    doComplete();
+  }
+}
+
+// 今のカード以外に、切り替えられる(出現条件を満たす)カードが他にあるかどうか
+function hasSkipAlternative(excludeId) {
+  const now = Date.now();
+  return cards.some(c => c.id !== excludeId && !isChildBlocked(c) && (!c.availableAfter || c.availableAfter <= now));
+}
+
+function skipCard(c) {
+  if (isTransitioning) return; // 連打による二重発火を防ぐ
+  if (!hasSkipAlternative(c.id)) {
+    // 他に切り替えられるカードが無い場合は、何もせず振動だけ返す(点滅なし)
+    const cardElNow = frontFace ? frontFace.el : null;
+    if (cardElNow) {
+      cardElNow.classList.remove('no-alt-shake');
+      void cardElNow.offsetWidth;
+      cardElNow.classList.add('no-alt-shake');
+      cardElNow.addEventListener('animationend', () => cardElNow.classList.remove('no-alt-shake'), { once: true });
+    }
+    return;
+  }
+  isTransitioning = true;
+  // want=3(自発的にやりたい)のスキップは無償・即次表示。他はそのまま山に戻る(何もしない)
+  const doSkip = () => {
+    justSkippedId = c.id; // 直後の1サイクルだけ、このカードを控えの選出から除外する
+    saveCards(cards);
+    promoteNextCard();
+    cardEl.remove(); // 退場アニメーション後の古い要素をDOMから確実に取り除く
+    isTransitioning = false;
+  };
+  const cardEl = frontFace ? frontFace.el : null;
+  if (cardEl) {
+    clearTimer();
+    cardEl.classList.add('to-back');
+    shiftGhostsForward(500);
+    cardEl.addEventListener('animationend', doSkip, { once: true });
+  } else {
+    doSkip();
+  }
+}
+
+function deleteCard(id) {
+  cards = cards.filter(x => x.id !== id && x.parentId !== id);
+  saveCards(cards);
+  drawCard();
+}
+
+// ===== 分解 =====
+let decomposeTarget = null;
+function addDecomposeStep(idx, defaults) {
+  const wrap = document.getElementById('decStepsWrap');
+  const stepBox = document.createElement('div');
+  stepBox.className = 'dec-step';
+  stepBox.style.border = '1px solid var(--border)';
+  stepBox.style.borderRadius = '10px';
+  stepBox.style.padding = '10px';
+  stepBox.style.marginBottom = '10px';
+  stepBox.style.background = 'var(--surface-2)';
+
+  const label = document.createElement('label');
+  label.textContent = idx === 0 ? '最初の一手' : `${idx+1}手目(空欄なら自動でスキップされます)`;
+  label.style.fontSize = '12px';
+  label.style.color = 'var(--text-secondary)';
+  label.style.display = 'block';
+  label.style.marginBottom = '4px';
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'dec-step-input';
+  input.placeholder = idx === 0 ? 'ノートを開く' : '';
+  input.style.width = '100%';
+  input.style.height = '36px';
+  input.style.borderRadius = '8px';
+  input.style.border = '1px solid var(--border-strong)';
+  input.style.padding = '0 10px';
+  input.style.fontSize = '16px';
+  input.style.background = 'var(--surface)';
+  input.style.marginBottom = '8px';
+  input.style.boxSizing = 'border-box';
+  input.addEventListener('input', () => {
+    document.getElementById('decError').style.display = 'none';
+  });
+
+  const row = document.createElement('div');
+  row.style.display = 'flex';
+  row.style.gap = '6px';
+
+  const timeInput = document.createElement('select');
+  timeInput.className = 'dec-step-time';
+  timeInput.style.width = '84px';
+  timeInput.style.flexShrink = '0';
+  timeInput.style.height = '34px';
+  timeInput.style.borderRadius = '8px';
+  timeInput.style.border = '1px solid var(--border-strong)';
+  timeInput.style.padding = '0 4px';
+  timeInput.style.fontSize = '13px';
+  timeInput.style.background = 'var(--surface)';
+  timeInput.style.boxSizing = 'border-box';
+  populateTimeSelect(timeInput, nearestTimeOption(defaults && defaults.time));
+
+  const wantSel = document.createElement('select');
+  wantSel.className = 'dec-step-want';
+  wantSel.style.flex = '1';
+  wantSel.style.minWidth = '0';
+  wantSel.style.height = '34px';
+  wantSel.style.fontSize = '13px';
+  wantSel.style.border = '1px solid var(--border-strong)';
+  wantSel.style.borderRadius = '8px';
+  wantSel.style.background = 'var(--surface)';
+  WANT_LABELS.forEach((wLabel, i) => {
+    const opt = document.createElement('option');
+    opt.value = i; opt.textContent = wLabel;
+    if (defaults && defaults.want === i) opt.selected = true;
+    wantSel.appendChild(opt);
+  });
+
+  const locSel = document.createElement('select');
+  locSel.className = 'dec-step-location';
+  locSel.style.flex = '1';
+  locSel.style.minWidth = '0';
+  locSel.style.height = '34px';
+  locSel.style.fontSize = '13px';
+  locSel.style.border = '1px solid var(--border-strong)';
+  locSel.style.borderRadius = '8px';
+  locSel.style.background = 'var(--surface)';
+  const optNone = document.createElement('option');
+  optNone.value = ''; optNone.textContent = '指定なし';
+  if (!defaults || !defaults.location) optNone.selected = true;
+  locSel.appendChild(optNone);
+  LOCATIONS.forEach(loc => {
+    const opt = document.createElement('option');
+    opt.value = loc; opt.textContent = loc;
+    if (defaults && defaults.location === loc) opt.selected = true;
+    locSel.appendChild(opt);
+  });
+
+  row.appendChild(timeInput);
+  row.appendChild(wantSel);
+  row.appendChild(locSel);
+
+  stepBox.appendChild(label);
+  stepBox.appendChild(input);
+  stepBox.appendChild(row);
+  wrap.appendChild(stepBox);
+  return input;
+}
+
+function openDecompose(c) {
+  decomposeTarget = c;
+  const wrap = document.getElementById('decStepsWrap');
+  wrap.innerHTML = '';
+  document.getElementById('decError').style.display = 'none';
+  const first = addDecomposeStep(0, {
+    time: Math.max(1, Math.round(c.time / 3)),
+    want: Math.max(0, c.want - 1),
+    location: c.location
+  });
+  addDecomposeStep(1, {
+    time: Math.max(1, Math.round(c.time / 2)),
+    want: c.want,
+    location: c.location
+  });
+  document.getElementById('decomposeOverlay').classList.add('open');
+  first.focus();
+}
+document.getElementById('decAddStepBtn').onclick = () => {
+  const c = decomposeTarget;
+  const wrap = document.getElementById('decStepsWrap');
+  addDecomposeStep(wrap.children.length, c ? { time: Math.max(1, Math.round(c.time / 2)), want: c.want, location: c.location } : null);
+};
+document.getElementById('decCancelBtn').onclick = () => {
+  document.getElementById('decomposeOverlay').classList.remove('open');
+  decomposeTarget = null;
+};
+document.getElementById('decomposeOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'decomposeOverlay') {
+    document.getElementById('decomposeOverlay').classList.remove('open');
+    decomposeTarget = null;
+  }
+});
+document.getElementById('decSaveBtn').onclick = () => {
+  const c = decomposeTarget;
+  if (!c) return;
+  // 空欄で追加してしまったステップ(タスク名が空欄)は自動的に無視する
+  const stepBoxes = [...document.querySelectorAll('.dec-step')];
+  const steps = stepBoxes.map(box => {
+    const title = box.querySelector('.dec-step-input').value.trim();
+    const time = Number(box.querySelector('.dec-step-time').value) || 15;
+    const want = Number(box.querySelector('.dec-step-want').value);
+    const location = box.querySelector('.dec-step-location').value;
+    return { title, time, want, location };
+  }).filter(s => s.title.length > 0);
+
+  if (steps.length === 0) { document.getElementById('decError').style.display = 'block'; return; }
+
+  // 元カードを削除し、子タスクを順序付きで追加(総ステップ数も併せて記録しておく)
+  cards = cards.filter(x => x.id !== c.id);
+  const parentId = c.id;
+  const totalSteps = steps.length;
+  steps.forEach((s, i) => {
+    cards.push({id: uid(), title: s.title, time: s.time, want: s.want, location: s.location, loopType:'none', order: i+1, totalSteps, parentId, skipStreak:0, availableAfter:0});
+  });
+  saveCards(cards);
+  decomposeTarget = null;
+  document.getElementById('decomposeOverlay').classList.remove('open');
+  drawCard();
+};
+
+// ===== 新規作成/編集シート =====
+const overlay = document.getElementById('overlay');
+const wantSelect = document.getElementById('wantSelect');
+let editingId = null;
+
+function renderDeckList() {
+  const wrap = document.getElementById('deckList');
+  wrap.innerHTML = '';
+  if (cards.length === 0) {
+    wrap.innerHTML = '<div style="font-size:12px; color:var(--text-muted);">まだカードがありません</div>';
+    return;
+  }
+  cards.forEach(c => {
+    const row = document.createElement('div');
+    row.style.padding = '8px 0';
+    row.style.borderBottom = '1px solid var(--border)';
+
+    const left = document.createElement('div');
+    left.textContent = c.title;
+    left.style.fontSize = '12px';
+    left.style.marginBottom = '4px';
+    left.style.overflow = 'hidden';
+    left.style.textOverflow = 'ellipsis';
+    left.style.whiteSpace = 'nowrap';
+    left.style.cursor = 'pointer';
+    left.title = 'ダブルクリック(長押し)で名前を変更';
+
+    const startTitleRenameUI = () => {
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = c.title;
+      input.style.width = '100%';
+      input.style.fontSize = '16px';
+      input.style.border = '1px solid var(--border-strong)';
+      input.style.borderRadius = '4px';
+      input.style.padding = '2px 4px';
+      input.style.boxSizing = 'border-box';
+      row.replaceChild(input, left);
+      input.focus();
+      input.select();
+      let done = false;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        const trimmed = input.value.trim();
+        if (trimmed) {
+          cards = cards.map(x => x.id === c.id ? {...x, title: trimmed} : x);
+          saveCards(cards);
+        }
+        renderDeckList();
+      };
+      input.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter') { ev.preventDefault(); finish(); }
+        if (ev.key === 'Escape') { done = true; renderDeckList(); }
+      });
+      input.addEventListener('blur', finish);
+    };
+
+    left.ondblclick = (e) => {
+      e.stopPropagation();
+      startTitleRenameUI();
+    };
+
+    // タッチ操作向け:長押しでリネーム開始
+    let titleLongPressTimer = null;
+    let titleTouchStartX = 0, titleTouchStartY = 0;
+    left.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse') return;
+      titleTouchStartX = e.clientX; titleTouchStartY = e.clientY;
+      titleLongPressTimer = setTimeout(() => {
+        titleLongPressTimer = null;
+        startTitleRenameUI();
+      }, 500);
+    });
+    left.addEventListener('pointermove', (e) => {
+      if (!titleLongPressTimer) return;
+      if (Math.abs(e.clientX - titleTouchStartX) > 10 || Math.abs(e.clientY - titleTouchStartY) > 10) {
+        clearTimeout(titleLongPressTimer); titleLongPressTimer = null;
+      }
+    });
+    const cancelTitleLongPress = () => { if (titleLongPressTimer) { clearTimeout(titleLongPressTimer); titleLongPressTimer = null; } };
+    left.addEventListener('pointerup', cancelTitleLongPress);
+    left.addEventListener('pointercancel', cancelTitleLongPress);
+    left.addEventListener('pointerleave', cancelTitleLongPress);
+
+    row.appendChild(left);
+
+    const selRow = document.createElement('div');
+    selRow.style.display = 'flex';
+    selRow.style.gap = '6px';
+
+    const wantSel = document.createElement('select');
+    wantSel.style.fontSize = '13px';
+    wantSel.style.flex = '1';
+    wantSel.style.minWidth = '0';
+    wantSel.style.border = '1px solid var(--border)';
+    wantSel.style.borderRadius = '6px';
+    wantSel.style.background = 'var(--surface)';
+    WANT_LABELS.forEach((label, i) => {
+      const opt = document.createElement('option');
+      opt.value = i; opt.textContent = label;
+      if (i === c.want) opt.selected = true;
+      wantSel.appendChild(opt);
+    });
+    wantSel.onchange = () => {
+      cards = cards.map(x => x.id === c.id ? {...x, want: Number(wantSel.value)} : x);
+      saveCards(cards);
+    };
+
+    const locSel = document.createElement('select');
+    locSel.style.fontSize = '13px';
+    locSel.style.flex = '1';
+    locSel.style.minWidth = '0';
+    locSel.style.border = '1px solid var(--border)';
+    locSel.style.borderRadius = '6px';
+    locSel.style.background = 'var(--surface)';
+    const optNone = document.createElement('option');
+    optNone.value = ''; optNone.textContent = '指定なし';
+    if (!c.location) optNone.selected = true;
+    locSel.appendChild(optNone);
+    LOCATIONS.forEach(loc => {
+      const opt = document.createElement('option');
+      opt.value = loc; opt.textContent = loc;
+      if (c.location === loc) opt.selected = true;
+      locSel.appendChild(opt);
+    });
+    locSel.onchange = () => {
+      cards = cards.map(x => x.id === c.id ? {...x, location: locSel.value} : x);
+      saveCards(cards);
+    };
+
+    selRow.appendChild(wantSel);
+    selRow.appendChild(locSel);
+    row.appendChild(selRow);
+    wrap.appendChild(row);
+  });
+}
+
+function openCreate() {
+  editingId = null;
+  document.getElementById('sheetTitle').textContent = '新しいカード';
+  document.getElementById('fTitle').value = '';
+  populateTimeSelect(document.getElementById('fTime'), 15);
+  document.getElementById('fLocation').value = '';
+  document.getElementById('fLoopType').value = 'none';
+  document.getElementById('fTitleError').style.display = 'none';
+  setWantSelected(1);
+  document.getElementById('deleteBtn').style.display = 'none';
+  document.getElementById('deckListWrap').style.display = 'block';
+  renderDeckList();
+  const sheet = document.getElementById('cardSheet');
+  sheet.classList.remove('card-back', 'flip-out');
+  resetSheetPosition(sheet);
+  overlay.classList.add('open');
+}
+function resetSheetPosition(sheet) {
+  sheet.style.position = '';
+  sheet.style.top = '';
+  sheet.style.left = '';
+  sheet.style.width = '';
+  sheet.style.height = '';
+  sheet.style.margin = '';
+}
+function openEdit(c) {
+  editingId = c.id;
+  document.getElementById('sheetTitle').textContent = 'カードを編集';
+  document.getElementById('fTitle').value = c.title;
+  populateTimeSelect(document.getElementById('fTime'), c.time);
+  document.getElementById('fLocation').value = c.location || '';
+  document.getElementById('fLoopType').value = c.loopType || 'none';
+  document.getElementById('fTitleError').style.display = 'none';
+  setWantSelected(c.want);
+  document.getElementById('deleteBtn').style.display = 'block';
+  document.getElementById('deckListWrap').style.display = 'none';
+  const sheet = document.getElementById('cardSheet');
+  sheet.classList.remove('flip-out');
+  sheet.classList.add('card-back');
+
+  // 今めくっているカードの実際の画面位置に、裏面(編集フォーム)をぴったり重ねる
+  const cardEl = frontFace ? frontFace.el : null;
+  if (cardEl) {
+    const rect = cardEl.getBoundingClientRect();
+    sheet.style.position = 'fixed';
+    sheet.style.top = rect.top + 'px';
+    sheet.style.left = rect.left + 'px';
+    sheet.style.width = rect.width + 'px';
+    sheet.style.height = rect.height + 'px';
+    sheet.style.margin = '0';
+    // 裏返っている間、元の表側カードが透けて「別のカード」に見えるのを防ぐため一時的に隠す
+    cardEl.style.visibility = 'hidden';
+  } else {
+    resetSheetPosition(sheet);
+  }
+
+  sheet.classList.add('flip-in');
+  overlay.classList.add('open');
+  sheet.addEventListener('animationend', () => sheet.classList.remove('flip-in'), { once: true });
+}
+
+function closeOverlay() {
+  const sheet = document.getElementById('cardSheet');
+  if (sheet.classList.contains('card-back')) {
+    // 編集モード(カード裏面)のときは、回転して閉じる演出を挟む
+    sheet.classList.remove('flip-in');
+    sheet.classList.add('flip-out');
+    sheet.addEventListener('animationend', () => {
+      overlay.classList.remove('open');
+      sheet.classList.remove('card-back', 'flip-out');
+      resetSheetPosition(sheet);
+      const cardEl = frontFace ? frontFace.el : null;
+      if (cardEl) cardEl.style.visibility = '';
+    }, { once: true });
+  } else {
+    overlay.classList.remove('open');
+  }
+}
+
+function setWantSelected(v) {
+  [...wantSelect.children].forEach(btn => {
+    btn.classList.toggle('selected', Number(btn.dataset.v) === v);
+  });
+  wantSelect.dataset.value = v;
+}
+wantSelect.addEventListener('click', (e) => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  setWantSelected(Number(btn.dataset.v));
+});
+
+document.getElementById('fabBtn').onclick = openCreate;
+document.getElementById('pointsUseBtn').onclick = useGachaPoints;
+document.getElementById('cancelBtn').onclick = () => closeOverlay();
+overlay.addEventListener('click', (e) => { if (e.target === overlay) closeOverlay(); });
+document.getElementById('fTitle').addEventListener('input', () => {
+  document.getElementById('fTitleError').style.display = 'none';
+});
+
+document.getElementById('saveBtn').onclick = () => {
+  const title = document.getElementById('fTitle').value.trim();
+  if (!title) { document.getElementById('fTitleError').style.display = 'block'; return; }
+  const time = Number(document.getElementById('fTime').value) || 15;
+  const location = document.getElementById('fLocation').value;
+  const want = Number(wantSelect.dataset.value);
+  const loopType = document.getElementById('fLoopType').value;
+
+  if (editingId) {
+    cards = cards.map(c => c.id === editingId ? {...c, title, time, location, want, loopType} : c);
+  } else {
+    cards.push({id: uid(), title, time, want, location, loopType, order:null, parentId:null, skipStreak:0, availableAfter:0});
+    pendingRevealAnim = true; // 新規登録の時だけ、次のカードをめくる演出を出す
+    pendingShuffleAnim = true; // デッキ全体がシャッフルされる演出も合わせて出す
+  }
+  saveCards(cards);
+  closeOverlay();
+  drawCard();
+};
+document.getElementById('deleteBtn').onclick = () => {
+  if (editingId) deleteCard(editingId);
+  closeOverlay();
+};
+
+function populateLocationSelect() {
+  const sel = document.getElementById('fLocation');
+  const prevVal = sel.value;
+  sel.innerHTML = '';
+  const optNone = document.createElement('option');
+  optNone.value = ''; optNone.textContent = '指定なし';
+  sel.appendChild(optNone);
+  LOCATIONS.forEach(loc => {
+    const opt = document.createElement('option');
+    opt.value = loc; opt.textContent = loc;
+    sel.appendChild(opt);
+  });
+  if ([...sel.options].some(o => o.value === prevVal)) sel.value = prevVal;
+}
+
+// ===== 設定オーバーレイの開閉・各ボタン =====
+document.getElementById('settingsBtn').onclick = () => {
+  renderSettingsUI();
+  document.getElementById('settingsOverlay').classList.add('open');
+};
+document.getElementById('settingsCloseBtn').onclick = () => {
+  document.getElementById('settingsOverlay').classList.remove('open');
+};
+document.getElementById('settingsOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'settingsOverlay') document.getElementById('settingsOverlay').classList.remove('open');
+});
+document.getElementById('dbxConnectBtn').onclick = () => { startDropboxAuth(); };
+document.getElementById('dbxSyncNowBtn').onclick = async () => {
+  setDbxMsg('同期中...');
+  const remote = await downloadFromDropbox();
+  if (remote) {
+    if (Array.isArray(remote.cards)) { cards = remote.cards; localStorage.setItem(STORAGE_KEY, JSON.stringify(cards)); }
+    if (remote.points) { points = remote.points; localStorage.setItem(POINTS_KEY, JSON.stringify(points)); }
+    if (Array.isArray(remote.locations)) { LOCATIONS = remote.locations; localStorage.setItem(LOCATIONS_KEY, JSON.stringify(LOCATIONS)); }
+    renderLocationMenu();
+    populateLocationSelect();
+    drawCard();
+  }
+  await uploadToDropbox();
+};
+document.getElementById('dbxDisconnectBtn').onclick = () => { disconnectDropbox(); };
+document.getElementById('notifEnableBtn').onclick = async () => {
+  if (typeof Notification === 'undefined') return;
+  const perm = await Notification.requestPermission();
+  renderSettingsUI();
+};
+
+// ===== 初期化 =====
+async function initApp() {
+  // Dropbox認証からのリダイレクト(?code=...)が来ていれば処理する
+  const justAuthed = await handleDropboxOAuthCallback();
+
+  if (isDropboxConnected()) {
+    await initDropbox();
+    const remote = await downloadFromDropbox();
+    if (remote) {
+      if (Array.isArray(remote.cards)) { cards = remote.cards; localStorage.setItem(STORAGE_KEY, JSON.stringify(cards)); }
+      if (remote.points) { points = remote.points; localStorage.setItem(POINTS_KEY, JSON.stringify(points)); }
+      if (Array.isArray(remote.locations)) { LOCATIONS = remote.locations; localStorage.setItem(LOCATIONS_KEY, JSON.stringify(LOCATIONS)); }
+    } else {
+      // Dropbox側にまだファイルが無い(初回接続時など)場合は、今の手元のデータをアップロードしておく
+      uploadToDropbox();
+    }
+  }
+
+  renderLocationMenu();
+  populateLocationSelect();
+  document.getElementById('locationLabel').textContent = `今いる場所:${currentLocation || '指定なし'}`;
+  drawCard();
+  if (justAuthed) {
+    renderSettingsUI();
+    document.getElementById('settingsOverlay').classList.add('open');
+  }
+}
+initApp();
+</script>
+</body>
+</html>

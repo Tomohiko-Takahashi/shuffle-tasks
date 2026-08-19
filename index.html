@@ -405,11 +405,17 @@
   }
   .want-select { display:flex; gap:6px; align-items:stretch; }
   .want-select button {
-    flex:1; min-height:38px; font-size:11px; border-radius:8px; border:1px solid var(--border-strong);
+    flex:1 1 0; min-height:38px; font-size:11px; border-radius:8px; border:1px solid var(--border-strong);
     background: var(--surface); cursor:pointer; padding:2px; line-height:1.3;
   }
   .want-select button .want-btn-small { font-size:9.5px; white-space:nowrap; }
   .want-select button.want-3 { font-size:11px; }
+  /* 通常(新規作成)時は1行表記、編集(裏返ったカードサイズ)時は2行の改行表記に切り替える */
+  .want-select .wn-cardback { display:none; }
+  .sheet.card-back .want-select .wn-normal { display:none; }
+  .sheet.card-back .want-select .wn-cardback { display:inline; }
+  .sheet.card-back .want-select button { font-size:11px; }
+  .sheet.card-back .want-select button.want-1 .wn-cardback { font-size:9px; white-space:nowrap; }
   .want-select button.selected.want-0 { background: var(--red-bg); border-color: var(--red-border); color: var(--red-text); }
   .want-select button.selected.want-1 { background: var(--amber-bg); border-color: var(--amber-border); color: var(--amber-text); }
   .want-select button.selected.want-2 { background: var(--green-bg); border-color: var(--green-border); color: var(--green-text); }
@@ -475,8 +481,14 @@
     <div class="field">
       <label>やりたさ(動物的な欲求の強さのみで選ぶ)</label>
       <div class="want-select" id="wantSelect">
-        <button data-v="0" class="want-0"><span class="want-btn-small">やりたくない</span></button>
-        <button data-v="1" class="want-1"><span class="want-btn-small">やれなくもない</span></button>
+        <button data-v="0" class="want-0">
+          <span class="wn-normal want-btn-small">やりたくない</span>
+          <span class="wn-cardback">やりたく<br>ない</span>
+        </button>
+        <button data-v="1" class="want-1">
+          <span class="wn-normal want-btn-small">やれなくもない</span>
+          <span class="wn-cardback">やれなくも<br>ない</span>
+        </button>
         <button data-v="2" class="want-2">らくらく</button>
         <button data-v="3" class="want-3">自発的に<br>やりたい</button>
       </div>

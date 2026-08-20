@@ -1872,12 +1872,17 @@ function skipCard(c) {
 
 function deleteCard(id) {
   const target = cards.find(x => x.id === id);
-  // 分解タスクの「1番目の手順」を消す場合だけ、宙ぶらりんの手順が残らないよう、
-  // 同じ階層の兄弟を全部まとめて消す。2番目以降を消す場合は、それより前の手順には影響しない
-  const cascadeParentId = target && target.parentId != null && target.order === 1 ? target.parentId : null;
+  // 分解タスクの「今、列の一番手前にある手順」を消す場合だけ、宙ぶらりんの手順が残らないよう、
+  // 同じ列の兄弟を全部まとめて消す。それより後ろの手順を消す場合は、手前の手順には影響しない
+  let cascadeParentId = null;
+  if (target && target.parentId != null) {
+    const siblings = cards.filter(x => x.parentId === target.parentId);
+    const minOrder = Math.min(...siblings.map(s => s.order ?? 0));
+    if ((target.order ?? 0) === minOrder) cascadeParentId = target.parentId;
+  }
   cards = cards.filter(x => {
     if (x.id === id || x.parentId === id) return false; // 自分自身、および自分の子(親タスクを消した場合)
-    if (cascadeParentId != null && x.parentId === cascadeParentId) return false; // 1番目を消した時だけ、同じ階層の兄弟も
+    if (cascadeParentId != null && x.parentId === cascadeParentId) return false; // 列の先頭を消した時だけ、同じ列の兄弟も
     return true;
   });
   saveCards(cards);
@@ -2034,19 +2039,37 @@ document.getElementById('decSaveBtn').onclick = () => {
 
   if (steps.length === 0) { document.getElementById('decError').style.display = 'block'; return; }
 
-  // 元カードを削除し、子タスクを順序付きで追加(総ステップ数・階層の深さ・大元の系列IDも併せて記録しておく)
+  // 分解先のグループを決める:
+  // ・cがまだ何にも属していない(新規の元タスク)場合は、cのidを親とする新しい列を作る
+  // ・cが既に何かの列の一員(=手順をさらに分解する)場合は、同じ列の「cがいた位置」に差し込む
+  const targetParentId = c.parentId != null ? c.parentId : c.id;
+  const startOrder = c.parentId != null ? c.order : 1; // cがいた位置から差し込む。新規の場合は1から
+  const stepCount = steps.length;
+
+  if (c.parentId != null) {
+    // 差し込む分だけ、後ろの手順のorderをまとめてずらして席を空ける(1つ消えてstepCount個に置き換わる)
+    cards = cards.map(x => {
+      if (x.parentId === targetParentId && x.order > c.order) {
+        return {...x, order: x.order + stepCount - 1};
+      }
+      return x;
+    });
+  }
+
+  // 元カードを削除し、新しい手順を列の正しい位置に差し込む
   cards = cards.filter(x => x.id !== c.id);
-  const parentId = c.id;
-  const totalSteps = steps.length;
-  const depth = (c.depth || 0) + 1;
-  const rootParentId = c.rootParentId || c.parentId || c.id;
   steps.forEach((s, i) => {
-    cards.push({id: uid(), title: s.title, time: s.time, want: s.want, location: s.location, loopType:'none', order: i+1, totalSteps, parentId, depth, rootParentId, skipStreak:0, availableAfter:0});
+    cards.push({id: uid(), title: s.title, time: s.time, want: s.want, location: s.location, loopType:'none', order: startOrder + i, parentId: targetParentId, skipStreak:0, availableAfter:0});
   });
+
+  // 列全体の総ステップ数を数え直し、メンバー全員のtotalStepsを更新する(進捗ドット表示のため)
+  const totalSteps = cards.filter(x => x.parentId === targetParentId).length;
+  cards = cards.map(x => x.parentId === targetParentId ? {...x, totalSteps} : x);
+
   saveCards(cards);
   decomposeTarget = null;
   document.getElementById('decomposeOverlay').classList.remove('open');
-  const firstStep = cards.find(x => x.parentId === parentId && x.order === 1);
+  const firstStep = [...cards].filter(x => x.parentId === targetParentId).sort((a,b)=>a.order-b.order)[0];
   drawCard(firstStep);
 };
 
@@ -2212,7 +2235,9 @@ function renderTaskList() {
       delBtn.title = 'このタスクを削除';
       delBtn.onclick = (e) => {
         e.stopPropagation();
-        const hasSiblings = c.parentId != null && c.order === 1 && cards.some(x => x.parentId === c.parentId && x.id !== c.id);
+        const siblings = c.parentId != null ? cards.filter(x => x.parentId === c.parentId) : [];
+        const isFirst = siblings.length > 0 && (c.order ?? 0) === Math.min(...siblings.map(s => s.order ?? 0));
+        const hasSiblings = isFirst && siblings.length > 1;
         const msg = hasSiblings
           ? `「${c.title}」を削除しますか?(同じ分解タスクの他の手順もまとめて削除されます)`
           : `「${c.title}」を削除しますか?`;

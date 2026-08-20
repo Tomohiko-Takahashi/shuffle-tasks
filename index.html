@@ -110,7 +110,7 @@
   /* ポイントボタン付近のカウントダウン */
   .points-countdown-badge {
     position: fixed;
-    right: calc(24px + 54px + 12px + env(safe-area-inset-right) - 12px);
+    right: calc(24px + 54px + 12px + 54px + 12px + env(safe-area-inset-right) - 12px);
     bottom: calc(24px + 54px + 8px + env(safe-area-inset-bottom));
     width: 78px; text-align:center;
     font-size: 11px; font-weight: 600; color: var(--text);
@@ -319,6 +319,37 @@
 
   .empty-msg { text-align:center; color: var(--text-secondary); font-size:14px; padding: 60px 0; }
 
+  /* タスク一覧画面 */
+  .task-list-group-header {
+    font-size: 11px; font-weight: 700; color: var(--text-secondary); margin: 14px 0 4px;
+  }
+  .task-list-group-header:first-child { margin-top: 0; }
+  .task-list-row {
+    display:flex; align-items:center; gap:8px; padding: 9px 4px;
+    border-bottom: 1px solid var(--border); cursor: pointer;
+  }
+  .task-list-row:hover { background: var(--surface-2); }
+  .task-list-row.indent { padding-left: 22px; }
+  .task-list-row .tl-want-dot {
+    width:8px; height:8px; border-radius:50%; flex-shrink:0;
+  }
+  .task-list-row .tl-title {
+    flex:1; min-width:0; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .task-list-row .tl-loc {
+    font-size:11px; color: var(--text-muted); flex-shrink:0; max-width:90px;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .task-list-row .tl-title-input {
+    flex:1; min-width:0; font-size:14px; padding:2px 4px;
+    border:1px solid var(--border-strong); border-radius:4px; box-sizing:border-box;
+  }
+  .task-list-row .tl-del-btn {
+    flex-shrink:0; width:24px; height:24px; border:1px solid var(--border);
+    border-radius:6px; background: var(--surface); color: var(--red-text);
+    cursor:pointer; font-size:13px; line-height:1; padding:0;
+  }
+
   /* 新規作成ボタン */
   .fab {
     position: fixed; right: calc(24px + env(safe-area-inset-right)); bottom: calc(24px + env(safe-area-inset-bottom));
@@ -328,8 +359,13 @@
     display:flex; align-items:center; justify-content:center;
   }
   .fab.fab-points {
-    right: calc(24px + 54px + 12px + env(safe-area-inset-right));
     font-size: 15px; font-weight:700;
+  }
+  .fab.fab-list {
+    right: calc(24px + 54px + 12px + env(safe-area-inset-right));
+  }
+  .fab.fab-points-far {
+    right: calc(24px + 54px + 12px + 54px + 12px + env(safe-area-inset-right));
   }
   .fab.fab-points:disabled { opacity: 0.4; cursor: default; }
   .fab.fab-points.shake { animation: pointsShake 0.4s ease; }
@@ -364,6 +400,8 @@
     perspective: 1200px;
   }
   .overlay.open { display:flex; }
+  /* 確認ダイアログは、他のどのオーバーレイの上からでも呼び出されうるので、常に最前面に出す */
+  #confirmOverlay { z-index: 60; }
   .sheet {
     position: relative;
     width:100%; max-width: 340px; background: var(--surface); border-radius:16px;
@@ -453,8 +491,11 @@
 </div>
 
 <div class="points-countdown-badge" id="pointsCountdown"></div>
-<button class="fab fab-points" id="pointsUseBtn" aria-label="ポイントを使う">
+<button class="fab fab-points fab-points-far" id="pointsUseBtn" aria-label="ポイントを使う">
   <span id="pointsUseValue">0P</span>
+</button>
+<button class="fab fab-list" id="listBtn" aria-label="タスク一覧">
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="4" cy="6" r="1.2" fill="currentColor" stroke="none"/><line x1="9" y1="6" x2="21" y2="6"/><circle cx="4" cy="12" r="1.2" fill="currentColor" stroke="none"/><line x1="9" y1="12" x2="21" y2="12"/><circle cx="4" cy="18" r="1.2" fill="currentColor" stroke="none"/><line x1="9" y1="18" x2="21" y2="18"/></svg>
 </button>
 <button class="fab" id="fabBtn">+</button>
 
@@ -463,16 +504,6 @@
     <div id="editStepDots" class="step-dots" style="position:absolute; top:12px; right:14px; z-index:2;"></div>
     <div class="sheet-scroll">
     <h3 id="sheetTitle">新しいカード</h3>
-    <div id="deckListWrap" style="margin-bottom:16px;">
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
-        <span style="font-size:11px; color: var(--text-muted);">今デッキに入っているカード</span>
-        <select id="deckSortSelect" onchange="renderDeckList()" style="font-size:11px; padding:2px 4px; border-radius:6px; border:1px solid var(--border-strong); background: var(--surface);">
-          <option value="none">登録順</option>
-          <option value="location">場所ごと</option>
-        </select>
-      </div>
-      <div id="deckList" style="max-height:180px; overflow-y:auto; overscroll-behavior:contain; border:1px solid var(--border); border-radius:8px; padding:6px 8px; background: var(--surface-2);"></div>
-    </div>
     <div class="field">
       <label>タスク名</label>
       <textarea id="fTitle" placeholder="ノートを開く" rows="2" style="resize:vertical; font-family:inherit;"></textarea>
@@ -525,6 +556,27 @@
     <div class="sheet-actions">
       <button id="confirmCancelBtn">キャンセル</button>
       <button id="confirmOkBtn" class="danger">削除する</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="listOverlay">
+  <div class="sheet sheet-clip" style="max-width:380px;">
+    <div class="sheet-scroll">
+    <h3>タスク一覧</h3>
+    <div style="display:flex; gap:8px; margin-bottom:12px;">
+      <select id="listSortSelect" style="flex:1; font-size:13px; padding:6px 8px; border-radius:8px; border:1px solid var(--border-strong); background: var(--surface);">
+        <option value="none">登録順</option>
+        <option value="location">場所ごと</option>
+      </select>
+      <select id="listFilterSelect" style="flex:1; font-size:13px; padding:6px 8px; border-radius:8px; border:1px solid var(--border-strong); background: var(--surface);">
+        <option value="">すべての場所</option>
+      </select>
+    </div>
+    <div id="taskListArea"></div>
+    <div class="sheet-actions">
+      <button id="listCloseBtn">閉じる</button>
+    </div>
     </div>
   </div>
 </div>
@@ -1813,7 +1865,15 @@ function skipCard(c) {
 }
 
 function deleteCard(id) {
-  cards = cards.filter(x => x.id !== id && x.parentId !== id);
+  const target = cards.find(x => x.id === id);
+  // 分解タスクの「1番目の手順」を消す場合だけ、宙ぶらりんの手順が残らないよう、
+  // 同じ階層の兄弟を全部まとめて消す。2番目以降を消す場合は、それより前の手順には影響しない
+  const cascadeParentId = target && target.parentId != null && target.order === 1 ? target.parentId : null;
+  cards = cards.filter(x => {
+    if (x.id === id || x.parentId === id) return false; // 自分自身、および自分の子(親タスクを消した場合)
+    if (cascadeParentId != null && x.parentId === cascadeParentId) return false; // 1番目を消した時だけ、同じ階層の兄弟も
+    return true;
+  });
   saveCards(cards);
   drawCard();
 }
@@ -1968,12 +2028,14 @@ document.getElementById('decSaveBtn').onclick = () => {
 
   if (steps.length === 0) { document.getElementById('decError').style.display = 'block'; return; }
 
-  // 元カードを削除し、子タスクを順序付きで追加(総ステップ数も併せて記録しておく)
+  // 元カードを削除し、子タスクを順序付きで追加(総ステップ数・階層の深さ・大元の系列IDも併せて記録しておく)
   cards = cards.filter(x => x.id !== c.id);
   const parentId = c.id;
   const totalSteps = steps.length;
+  const depth = (c.depth || 0) + 1;
+  const rootParentId = c.rootParentId || c.parentId || c.id;
   steps.forEach((s, i) => {
-    cards.push({id: uid(), title: s.title, time: s.time, want: s.want, location: s.location, loopType:'none', order: i+1, totalSteps, parentId, skipStreak:0, availableAfter:0});
+    cards.push({id: uid(), title: s.title, time: s.time, want: s.want, location: s.location, loopType:'none', order: i+1, totalSteps, parentId, depth, rootParentId, skipStreak:0, availableAfter:0});
   });
   saveCards(cards);
   decomposeTarget = null;
@@ -1987,186 +2049,224 @@ const overlay = document.getElementById('overlay');
 const wantSelect = document.getElementById('wantSelect');
 let editingId = null;
 
-function renderDeckList() {
-  const wrap = document.getElementById('deckList');
-  wrap.innerHTML = '';
-  if (cards.length === 0) {
-    wrap.innerHTML = '<div style="font-size:12px; color:var(--text-muted);">まだカードがありません</div>';
+// ===== タスク一覧画面(専用) =====
+function populateListFilterSelect() {
+  const sel = document.getElementById('listFilterSelect');
+  const prevVal = sel.value;
+  sel.innerHTML = '<option value="">すべての場所</option><option value="__none__">指定なし</option>';
+  LOCATIONS.forEach(loc => {
+    const opt = document.createElement('option');
+    opt.value = loc; opt.textContent = loc;
+    sel.appendChild(opt);
+  });
+  if ([...sel.options].some(o => o.value === prevVal)) sel.value = prevVal;
+}
+
+// 兄弟(同じparentIdの分解手順)をorder順にまとめて隣接させ、インデント対象としてマークする
+// 分解タスクの系列(大元が同じ手順たち。子・孫まで含む)をまとめて隣接させる。
+// 深さ→order順に並べ、各カードに表示用の深さ(_listDepth)を付与して返す
+function groupSiblingsForList(list) {
+  const seen = new Set();
+  const result = [];
+  list.forEach(c => {
+    // 後方互換:rootParentIdが無い古いデータはparentIdをそのまま使う
+    const rootKey = c.rootParentId || c.parentId;
+    if (rootKey != null) {
+      if (seen.has(rootKey)) return;
+      seen.add(rootKey);
+      list.filter(x => (x.rootParentId || x.parentId) === rootKey)
+        .sort((a, b) => {
+          const da = a.depth || (a.parentId != null ? 1 : 0);
+          const db = b.depth || (b.parentId != null ? 1 : 0);
+          if (da !== db) return da - db;
+          return (a.order ?? 0) - (b.order ?? 0);
+        })
+        .forEach(s => result.push(s));
+    } else {
+      result.push(c);
+    }
+  });
+  return result;
+}
+
+function renderTaskList() {
+  const area = document.getElementById('taskListArea');
+  area.innerHTML = '';
+
+  const filterVal = document.getElementById('listFilterSelect').value;
+  let filtered = cards;
+  if (filterVal === '__none__') filtered = cards.filter(c => !c.location);
+  else if (filterVal) filtered = cards.filter(c => c.location === filterVal);
+
+  if (filtered.length === 0) {
+    area.innerHTML = '<div style="font-size:13px; color:var(--text-muted); padding:16px 0;">該当するタスクがありません</div>';
     return;
   }
-  const sortMode = document.getElementById('deckSortSelect').value;
-  let displayList = cards;
+
+  const sortMode = document.getElementById('listSortSelect').value;
+
+  // その階層(同じparentId)の中で、今もcardsに存在する兄弟だけを並べた時の、
+  // このカードが何番目(0始まり)に来るか。先頭=0、次=1、その次=2…と階段状に増える。
+  // 手前の手順が完了などで無くなると、残った兄弟の番号が自動的に繰り上がる
+  const staircaseRank = (c) => {
+    if (c.parentId == null) return 0;
+    const siblings = cards.filter(x => x.parentId === c.parentId).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    const idx = siblings.findIndex(s => s.id === c.id);
+    return idx === -1 ? 0 : idx;
+  };
+
+  const renderRows = (list) => {
+    const grouped = groupSiblingsForList(list);
+    // 先に各行の表示用の深さを計算しておく(接続判定に前後の深さが必要なため)
+    const items = grouped.map(c => {
+      const rawDepth = c.depth || (c.parentId != null ? 1 : 0);
+      const baseDepth = Math.max(0, rawDepth - 1); // 孫以降は、その分だけ基礎インデントを上乗せ
+      const depth = baseDepth + staircaseRank(c); // 兄弟内の順番ぶん、階段状に増やす
+      const rootKey = c.rootParentId || c.parentId || null;
+      return { c, depth, rootKey };
+    });
+    items.forEach((item, i) => {
+      const { c, depth, rootKey } = item;
+      const prev = items[i - 1];
+      const next = items[i + 1];
+      // 同じ系列(グループ)内であれば、先頭行を含めて全部つなげて詰める。
+      // 別の(無関係な)タスクとの境目だけ、通常の区切りに戻る
+      const connectedToPrev = !!prev && rootKey != null && rootKey === prev.rootKey;
+      const connectedToNext = !!next && rootKey != null && rootKey === next.rootKey;
+
+      const row = document.createElement('div');
+      row.className = 'task-list-row' + (depth > 0 ? ' indent' : '');
+      row.style.paddingLeft = depth > 0 ? `${14 + (depth - 1) * 16}px` : '';
+      if (connectedToPrev) row.style.paddingTop = '3px';
+      if (connectedToNext) { row.style.paddingBottom = '3px'; row.style.borderBottom = 'none'; }
+      const dot = document.createElement('span');
+      dot.className = 'tl-want-dot';
+      const dotColorVar = ['var(--red-border)', 'var(--amber-border)', 'var(--green-border)', 'var(--blue-border)'][c.want] || 'var(--border-strong)';
+      dot.style.background = dotColorVar;
+      const title = document.createElement('span');
+      title.className = 'tl-title';
+      title.textContent = c.title.split('\n')[0]; // 改行入りタイトルは1行目だけ表示
+      title.title = 'ダブルクリック(長押し)で名前を変更';
+      const loc = document.createElement('span');
+      loc.className = 'tl-loc';
+      loc.textContent = c.location || '';
+
+      const startTitleRenameUI = () => {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = c.title;
+        input.className = 'tl-title-input';
+        input.onclick = (e) => e.stopPropagation();
+        row.replaceChild(input, title);
+        input.focus();
+        input.select();
+        let done = false;
+        const finish = () => {
+          if (done) return;
+          done = true;
+          const trimmed = input.value.trim();
+          if (trimmed) {
+            cards = cards.map(x => x.id === c.id ? {...x, title: trimmed} : x);
+            saveCards(cards);
+          }
+          renderTaskList();
+        };
+        input.addEventListener('keydown', (ev) => {
+          if (ev.key === 'Enter') { ev.preventDefault(); finish(); }
+          if (ev.key === 'Escape') { done = true; renderTaskList(); }
+        });
+        input.addEventListener('blur', finish);
+      };
+      title.ondblclick = (e) => { e.stopPropagation(); startTitleRenameUI(); };
+      // タッチ操作向け:長押しでリネーム開始
+      let titleLongPressTimer = null;
+      let titleTouchStartX = 0, titleTouchStartY = 0;
+      title.addEventListener('pointerdown', (e) => {
+        if (e.pointerType === 'mouse') return;
+        titleTouchStartX = e.clientX; titleTouchStartY = e.clientY;
+        titleLongPressTimer = setTimeout(() => {
+          titleLongPressTimer = null;
+          startTitleRenameUI();
+        }, 500);
+      });
+      title.addEventListener('pointermove', (e) => {
+        if (!titleLongPressTimer) return;
+        if (Math.abs(e.clientX - titleTouchStartX) > 10 || Math.abs(e.clientY - titleTouchStartY) > 10) {
+          clearTimeout(titleLongPressTimer); titleLongPressTimer = null;
+        }
+      });
+      const cancelTitleLongPress = () => { if (titleLongPressTimer) { clearTimeout(titleLongPressTimer); titleLongPressTimer = null; } };
+      title.addEventListener('pointerup', cancelTitleLongPress);
+      title.addEventListener('pointercancel', cancelTitleLongPress);
+      title.addEventListener('pointerleave', cancelTitleLongPress);
+
+      const delBtn = document.createElement('button');
+      delBtn.className = 'tl-del-btn';
+      delBtn.textContent = '×';
+      delBtn.title = 'このタスクを削除';
+      delBtn.onclick = (e) => {
+        e.stopPropagation();
+        const hasSiblings = c.parentId != null && c.order === 1 && cards.some(x => x.parentId === c.parentId && x.id !== c.id);
+        const msg = hasSiblings
+          ? `「${c.title}」を削除しますか?(同じ分解タスクの他の手順もまとめて削除されます)`
+          : `「${c.title}」を削除しますか?`;
+        customConfirm(msg, () => {
+          deleteCard(c.id);
+          renderTaskList();
+        });
+      };
+
+      row.appendChild(dot);
+      row.appendChild(title);
+      if (c.location) row.appendChild(loc);
+      row.appendChild(delBtn);
+      row.onclick = () => {
+        document.getElementById('listOverlay').classList.remove('open');
+        openEdit(c);
+      };
+      area.appendChild(row);
+    });
+  };
+
   if (sortMode === 'location') {
     const orderOf = (loc) => {
-      if (!loc) return -1; // 指定なしを先頭に
+      if (!loc) return -1;
       const idx = LOCATIONS.indexOf(loc);
       return idx === -1 ? LOCATIONS.length : idx;
     };
-    displayList = [...cards].sort((a, b) => orderOf(a.location) - orderOf(b.location));
+    const buckets = new Map();
+    filtered.forEach(c => {
+      const key = c.location || '';
+      if (!buckets.has(key)) buckets.set(key, []);
+      buckets.get(key).push(c);
+    });
+    [...buckets.keys()].sort((a, b) => orderOf(a) - orderOf(b)).forEach(key => {
+      const header = document.createElement('div');
+      header.className = 'task-list-group-header';
+      header.textContent = key || '指定なし';
+      area.appendChild(header);
+      renderRows(buckets.get(key));
+    });
+  } else {
+    renderRows(filtered);
   }
-  let lastGroupKey; // undefined = まだグループ見出しを出していない
-  displayList.forEach(c => {
-    if (sortMode === 'location') {
-      const groupKey = c.location || '';
-      if (groupKey !== lastGroupKey) {
-        const isFirstGroup = lastGroupKey === undefined;
-        lastGroupKey = groupKey;
-        const header = document.createElement('div');
-        header.textContent = groupKey || '指定なし';
-        header.style.fontSize = '11px';
-        header.style.fontWeight = '700';
-        header.style.color = 'var(--text-secondary)';
-        header.style.margin = isFirstGroup ? '0 0 4px' : '12px 0 4px';
-        wrap.appendChild(header);
-      }
-    }
-    const row = document.createElement('div');
-    row.style.padding = '8px 0';
-    row.style.borderBottom = '1px solid var(--border)';
-
-    const left = document.createElement('div');
-    left.textContent = c.title;
-    left.style.fontSize = '12px';
-    left.style.marginBottom = '4px';
-    left.style.overflow = 'hidden';
-    left.style.textOverflow = 'ellipsis';
-    left.style.whiteSpace = 'nowrap';
-    left.style.cursor = 'pointer';
-    left.title = 'ダブルクリック(長押し)で名前を変更';
-
-    const startTitleRenameUI = () => {
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.value = c.title;
-      input.style.width = '100%';
-      input.style.fontSize = '16px';
-      input.style.border = '1px solid var(--border-strong)';
-      input.style.borderRadius = '4px';
-      input.style.padding = '2px 4px';
-      input.style.boxSizing = 'border-box';
-      row.replaceChild(input, left);
-      input.focus();
-      input.select();
-      let done = false;
-      const finish = () => {
-        if (done) return;
-        done = true;
-        const trimmed = input.value.trim();
-        if (trimmed) {
-          cards = cards.map(x => x.id === c.id ? {...x, title: trimmed} : x);
-          saveCards(cards);
-        }
-        renderDeckList();
-      };
-      input.addEventListener('keydown', (ev) => {
-        if (ev.key === 'Enter') { ev.preventDefault(); finish(); }
-        if (ev.key === 'Escape') { done = true; renderDeckList(); }
-      });
-      input.addEventListener('blur', finish);
-    };
-
-    left.ondblclick = (e) => {
-      e.stopPropagation();
-      startTitleRenameUI();
-    };
-
-    // タッチ操作向け:長押しでリネーム開始
-    let titleLongPressTimer = null;
-    let titleTouchStartX = 0, titleTouchStartY = 0;
-    left.addEventListener('pointerdown', (e) => {
-      if (e.pointerType === 'mouse') return;
-      titleTouchStartX = e.clientX; titleTouchStartY = e.clientY;
-      titleLongPressTimer = setTimeout(() => {
-        titleLongPressTimer = null;
-        startTitleRenameUI();
-      }, 500);
-    });
-    left.addEventListener('pointermove', (e) => {
-      if (!titleLongPressTimer) return;
-      if (Math.abs(e.clientX - titleTouchStartX) > 10 || Math.abs(e.clientY - titleTouchStartY) > 10) {
-        clearTimeout(titleLongPressTimer); titleLongPressTimer = null;
-      }
-    });
-    const cancelTitleLongPress = () => { if (titleLongPressTimer) { clearTimeout(titleLongPressTimer); titleLongPressTimer = null; } };
-    left.addEventListener('pointerup', cancelTitleLongPress);
-    left.addEventListener('pointercancel', cancelTitleLongPress);
-    left.addEventListener('pointerleave', cancelTitleLongPress);
-
-    row.appendChild(left);
-
-    const selRow = document.createElement('div');
-    selRow.style.display = 'flex';
-    selRow.style.gap = '6px';
-
-    const wantSel = document.createElement('select');
-    wantSel.style.fontSize = '13px';
-    wantSel.style.flex = '1';
-    wantSel.style.minWidth = '0';
-    wantSel.style.border = '1px solid var(--border)';
-    wantSel.style.borderRadius = '6px';
-    wantSel.style.background = 'var(--surface)';
-    WANT_LABELS.forEach((label, i) => {
-      const opt = document.createElement('option');
-      opt.value = i; opt.textContent = label;
-      if (i === c.want) opt.selected = true;
-      wantSel.appendChild(opt);
-    });
-    wantSel.onchange = () => {
-      cards = cards.map(x => x.id === c.id ? {...x, want: Number(wantSel.value)} : x);
-      saveCards(cards);
-    };
-
-    const locSel = document.createElement('select');
-    locSel.style.fontSize = '13px';
-    locSel.style.flex = '1';
-    locSel.style.minWidth = '0';
-    locSel.style.border = '1px solid var(--border)';
-    locSel.style.borderRadius = '6px';
-    locSel.style.background = 'var(--surface)';
-    const optNone = document.createElement('option');
-    optNone.value = ''; optNone.textContent = '指定なし';
-    if (!c.location) optNone.selected = true;
-    locSel.appendChild(optNone);
-    LOCATIONS.forEach(loc => {
-      const opt = document.createElement('option');
-      opt.value = loc; opt.textContent = loc;
-      if (c.location === loc) opt.selected = true;
-      locSel.appendChild(opt);
-    });
-    locSel.onchange = () => {
-      cards = cards.map(x => x.id === c.id ? {...x, location: locSel.value} : x);
-      saveCards(cards);
-    };
-
-    const delBtn = document.createElement('button');
-    delBtn.textContent = '×';
-    delBtn.title = 'このタスクを削除';
-    delBtn.style.flexShrink = '0';
-    delBtn.style.width = '28px';
-    delBtn.style.height = '28px';
-    delBtn.style.border = '1px solid var(--border)';
-    delBtn.style.borderRadius = '6px';
-    delBtn.style.background = 'var(--surface)';
-    delBtn.style.color = 'var(--red-text)';
-    delBtn.style.cursor = 'pointer';
-    delBtn.style.fontSize = '14px';
-    delBtn.onclick = (e) => {
-      e.stopPropagation();
-      customConfirm(`「${c.title}」を削除しますか?`, () => {
-        cards = cards.filter(x => x.id !== c.id && x.parentId !== c.id);
-        saveCards(cards);
-        renderDeckList();
-        if (currentCard && currentCard.id === c.id) drawCard();
-      });
-    };
-
-    selRow.appendChild(wantSel);
-    selRow.appendChild(locSel);
-    selRow.appendChild(delBtn);
-    row.appendChild(selRow);
-    wrap.appendChild(row);
-  });
 }
+
+function openTaskList() {
+  populateListFilterSelect();
+  renderTaskList();
+  document.getElementById('listOverlay').classList.add('open');
+}
+
+document.getElementById('listBtn').onclick = openTaskList;
+document.getElementById('listCloseBtn').onclick = () => {
+  document.getElementById('listOverlay').classList.remove('open');
+};
+document.getElementById('listOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'listOverlay') document.getElementById('listOverlay').classList.remove('open');
+});
+document.getElementById('listSortSelect').onchange = renderTaskList;
+document.getElementById('listFilterSelect').onchange = renderTaskList;
 
 function openCreate() {
   editingId = null;
@@ -2178,8 +2278,6 @@ function openCreate() {
   document.getElementById('fTitleError').style.display = 'none';
   setWantSelected(1);
   document.getElementById('deleteBtn').style.display = 'none';
-  document.getElementById('deckListWrap').style.display = 'block';
-  renderDeckList();
   document.getElementById('editStepDots').innerHTML = '';
   const sheet = document.getElementById('cardSheet');
   sheet.classList.remove('card-back', 'flip-out');
@@ -2204,7 +2302,6 @@ function openEdit(c) {
   document.getElementById('fTitleError').style.display = 'none';
   setWantSelected(c.want);
   document.getElementById('deleteBtn').style.display = 'block';
-  document.getElementById('deckListWrap').style.display = 'none';
   const dotsEl = document.getElementById('editStepDots');
   dotsEl.innerHTML = '';
   const stepDots = buildStepDotsEl(c);

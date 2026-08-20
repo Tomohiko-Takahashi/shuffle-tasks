@@ -2151,7 +2151,7 @@ function renderTaskList() {
       dot.style.background = dotColorVar;
       const title = document.createElement('span');
       title.className = 'tl-title';
-      title.textContent = c.title.split('\n')[0]; // 改行入りタイトルは1行目だけ表示
+      title.textContent = c.title.replace(/\n+/g, ' '); // 改行は半角スペースに置き換えて1行表示にする(超過分は既存CSSの省略表示に任せる)
       title.title = 'ダブルクリック(長押し)で名前を変更';
       const loc = document.createElement('span');
       loc.className = 'tl-loc';

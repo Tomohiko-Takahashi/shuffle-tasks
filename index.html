@@ -765,12 +765,18 @@ async function autoSyncOnReturn() {
   try {
     const remote = await downloadFromDropbox();
     if (remote) {
+      const keepShowingId = currentCard ? currentCard.id : null;
       if (Array.isArray(remote.cards)) { cards = remote.cards; localStorage.setItem(STORAGE_KEY, JSON.stringify(cards)); }
       if (remote.points) { points = remote.points; localStorage.setItem(POINTS_KEY, JSON.stringify(points)); }
       if (Array.isArray(remote.locations)) { LOCATIONS = remote.locations; localStorage.setItem(LOCATIONS_KEY, JSON.stringify(LOCATIONS)); }
       renderLocationMenu();
       populateLocationSelect();
-      drawCard();
+      // 今表示中だったカードが、取得したデータの中にもまだ存在するなら、
+      // 表示やタイマーには一切触れない(他の端末での更新は裏で反映済みだが、今見ている画面は継続させる)
+      const stillExists = keepShowingId && cards.some(c => c.id === keepShowingId);
+      if (!stillExists) {
+        drawCard();
+      }
     }
   } finally {
     autoSyncInFlight = false;

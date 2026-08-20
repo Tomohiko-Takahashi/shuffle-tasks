@@ -464,7 +464,13 @@
     <div class="sheet-scroll">
     <h3 id="sheetTitle">新しいカード</h3>
     <div id="deckListWrap" style="margin-bottom:16px;">
-      <div style="font-size:11px; color: var(--text-muted); margin-bottom:6px;">今デッキに入っているカード</div>
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+        <span style="font-size:11px; color: var(--text-muted);">今デッキに入っているカード</span>
+        <select id="deckSortSelect" onchange="renderDeckList()" style="font-size:11px; padding:2px 4px; border-radius:6px; border:1px solid var(--border-strong); background: var(--surface);">
+          <option value="none">登録順</option>
+          <option value="location">場所ごと</option>
+        </select>
+      </div>
       <div id="deckList" style="max-height:180px; overflow-y:auto; overscroll-behavior:contain; border:1px solid var(--border); border-radius:8px; padding:6px 8px; background: var(--surface-2);"></div>
     </div>
     <div class="field">
@@ -694,8 +700,30 @@ function flushDropboxUpload() {
 }
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') flushDropboxUpload();
+  if (document.visibilityState === 'visible') autoSyncOnReturn();
 });
 window.addEventListener('pagehide', flushDropboxUpload);
+
+// 他の端末を使い終えてこのタブに戻ってきた瞬間、自動で最新のデータを取得して反映する
+// (これにより「今すぐ同期」ボタンを毎回押す必要がなくなる)
+let autoSyncInFlight = false;
+async function autoSyncOnReturn() {
+  if (!isDropboxConnected() || !dbx || autoSyncInFlight) return;
+  autoSyncInFlight = true;
+  try {
+    const remote = await downloadFromDropbox();
+    if (remote) {
+      if (Array.isArray(remote.cards)) { cards = remote.cards; localStorage.setItem(STORAGE_KEY, JSON.stringify(cards)); }
+      if (remote.points) { points = remote.points; localStorage.setItem(POINTS_KEY, JSON.stringify(points)); }
+      if (Array.isArray(remote.locations)) { LOCATIONS = remote.locations; localStorage.setItem(LOCATIONS_KEY, JSON.stringify(LOCATIONS)); }
+      renderLocationMenu();
+      populateLocationSelect();
+      drawCard();
+    }
+  } finally {
+    autoSyncInFlight = false;
+  }
+}
 
 async function downloadFromDropbox() {
   if (!dbx) return null;
@@ -1269,10 +1297,13 @@ function pickCard(excludeIds, allowFallback) {
   if (alive.length === 0 && allowFallback) alive = hardAlive;
   if (alive.length === 0) return null;
 
-  // 1. 現在地に紐づくカードがあれば優先(順序があれば順序順、なければ同ランク内ランダム)
+  // 1. 現在地に紐づくカードがあれば優先(順序があれば順序順、なければ同ランク内ランダム)。
+  // 現在地を指定している場合、該当が無ければ「場所指定なし」のカードだけに絞る(他の場所専用のカードは出さない)。
+  // 「今いる場所:指定なし」の時は、そもそも場所での絞り込み自体を行わない
   const locMatches = alive.filter(c => currentLocation && c.location === currentLocation);
-  const pool = locMatches.length > 0 ? locMatches : alive.filter(c => !c.location || !currentLocation || c.location === '');
-  const usePool = locMatches.length > 0 ? locMatches : alive;
+  const usePool = locMatches.length > 0
+    ? locMatches
+    : (currentLocation ? alive.filter(c => !c.location) : alive);
 
   // 順序付きカード(order有り)があれば最小orderを最優先
   const ordered = usePool.filter(c => c.order != null).sort((a,b)=>a.order-b.order);
@@ -1963,7 +1994,32 @@ function renderDeckList() {
     wrap.innerHTML = '<div style="font-size:12px; color:var(--text-muted);">まだカードがありません</div>';
     return;
   }
-  cards.forEach(c => {
+  const sortMode = document.getElementById('deckSortSelect').value;
+  let displayList = cards;
+  if (sortMode === 'location') {
+    const orderOf = (loc) => {
+      if (!loc) return -1; // 指定なしを先頭に
+      const idx = LOCATIONS.indexOf(loc);
+      return idx === -1 ? LOCATIONS.length : idx;
+    };
+    displayList = [...cards].sort((a, b) => orderOf(a.location) - orderOf(b.location));
+  }
+  let lastGroupKey; // undefined = まだグループ見出しを出していない
+  displayList.forEach(c => {
+    if (sortMode === 'location') {
+      const groupKey = c.location || '';
+      if (groupKey !== lastGroupKey) {
+        const isFirstGroup = lastGroupKey === undefined;
+        lastGroupKey = groupKey;
+        const header = document.createElement('div');
+        header.textContent = groupKey || '指定なし';
+        header.style.fontSize = '11px';
+        header.style.fontWeight = '700';
+        header.style.color = 'var(--text-secondary)';
+        header.style.margin = isFirstGroup ? '0 0 4px' : '12px 0 4px';
+        wrap.appendChild(header);
+      }
+    }
     const row = document.createElement('div');
     row.style.padding = '8px 0';
     row.style.borderBottom = '1px solid var(--border)';

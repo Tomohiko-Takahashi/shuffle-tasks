@@ -1799,8 +1799,12 @@ function buildCardFace(cardData) {
   const card = document.createElement('div');
   card.className = 'card';
 
+  // want(やりたさ)が万一おかしな値(未定義・範囲外・NaN等)だった場合でも、
+  // card-innerの色付けクラス(want-0〜3)自体が丸ごと欠落して「灰色の空白」になってしまわないよう、安全な値に補正しておく
+  const safeWant = [0, 1, 2, 3].includes(cardData.want) ? cardData.want : 1;
+
   const cardInner = document.createElement('div');
-  cardInner.className = `card-inner want-${cardData.want}`;
+  cardInner.className = `card-inner want-${safeWant}`;
 
   const topRow = document.createElement('div');
   topRow.className = 'top-row';
@@ -1993,12 +1997,15 @@ function clearTimerState() {
 
 function startTimer(el, minutes, cardId) {
   timerElRef = el;
+  // minutesが万一おかしな値(未定義・NaN等)だった場合、timerEndAt自体がNaNになり、
+  // カウントダウンが「NaN:NaN」のまま永久に止まって見えるバグになるため、安全な値に補正しておく
+  const safeMinutes = (typeof minutes === 'number' && isFinite(minutes) && minutes > 0) ? minutes : 15;
   const saved = cardId ? loadTimerState() : null;
-  if (saved && saved.cardId === cardId) {
+  if (saved && saved.cardId === cardId && typeof saved.endAt === 'number' && isFinite(saved.endAt)) {
     // 同じカードのタイマーが既に動いていた(再読み込みなど) → 終了予定時刻をそのまま引き継ぐ
     timerEndAt = saved.endAt;
   } else {
-    timerEndAt = Date.now() + Math.max(0, Math.round(minutes * 60)) * 1000;
+    timerEndAt = Date.now() + Math.max(0, Math.round(safeMinutes * 60)) * 1000;
     if (cardId) saveTimerState(cardId, timerEndAt);
   }
   updateTimerLabel();

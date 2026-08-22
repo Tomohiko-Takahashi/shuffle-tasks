@@ -627,6 +627,7 @@
     </div>
     <div class="sheet-actions sheet-actions-fixed">
       <button id="cancelBtn">キャンセル</button>
+      <button id="decomposeFromEditBtn" style="display:none;">分解</button>
       <button id="deleteBtn" class="danger" style="display:none;">削除</button>
       <button id="saveBtn" class="primary">保存</button>
     </div>
@@ -793,7 +794,12 @@ function disconnectDropbox() {
 
 async function uploadToDropbox() {
   if (!dbx) return;
-  const payload = JSON.stringify({ cards, points, locations: LOCATIONS, savedAt: Date.now() });
+  const payload = JSON.stringify({
+    cards, points, locations: LOCATIONS,
+    currentLocation, // 他端末でも同じ「今いる場所」が開けるように
+    currentCardId: currentCard ? currentCard.id : null, // 他端末でも同じカードが前面に来るように
+    savedAt: Date.now(),
+  });
   try {
     await dbx.filesUpload({ path: DBX_FILE_PATH, contents: payload, mode: { '.tag': 'overwrite' } });
     setDbxMsg('同期しました');
@@ -848,17 +854,34 @@ async function autoSyncOnReturn() {
   try {
     const remote = await downloadFromDropbox();
     if (remote) {
-      const keepShowingId = currentCard ? currentCard.id : null;
       if (Array.isArray(remote.cards)) { cards = remote.cards; localStorage.setItem(STORAGE_KEY, JSON.stringify(cards)); }
       if (remote.points) { points = remote.points; localStorage.setItem(POINTS_KEY, JSON.stringify(points)); }
       if (Array.isArray(remote.locations)) { LOCATIONS = remote.locations; localStorage.setItem(LOCATIONS_KEY, JSON.stringify(LOCATIONS)); }
+
+      // 他端末で最後にいた「今いる場所」があれば、それに合わせる
+      let locationChanged = false;
+      if (typeof remote.currentLocation === 'string' && remote.currentLocation !== currentLocation) {
+        currentLocation = remote.currentLocation;
+        localStorage.setItem(LOC_KEY, currentLocation);
+        const labelEl = document.getElementById('locationLabel');
+        if (labelEl) labelEl.textContent = currentLocation ? `今いる場所:${currentLocation}` : '今いる場所:指定なし';
+        locationChanged = true;
+      }
+
       renderLocationMenu();
       populateLocationSelect();
-      // 今表示中だったカードが、取得したデータの中にもまだ存在するなら、
-      // 表示やタイマーには一切触れない(他の端末での更新は裏で反映済みだが、今見ている画面は継続させる)
-      const stillExists = keepShowingId && cards.some(c => c.id === keepShowingId);
-      if (!stillExists) {
-        drawCard();
+
+      const remoteCardId = remote.currentCardId || null;
+      const localCardId = currentCard ? currentCard.id : null;
+      const remoteCardStillExists = remoteCardId && cards.some(c => c.id === remoteCardId);
+
+      if (locationChanged || (remoteCardId && remoteCardId !== localCardId)) {
+        // 場所が変わった、または他端末で違うカードを見ていた場合は、それに合わせて切り替える
+        drawCard(remoteCardStillExists ? cards.find(c => c.id === remoteCardId) : undefined);
+      } else {
+        // 今表示中のカードがまだ存在するなら、表示やタイマーには一切触れない
+        const stillExists = localCardId && cards.some(c => c.id === localCardId);
+        if (!stillExists) drawCard();
       }
     }
   } finally {
@@ -1311,6 +1334,7 @@ function renderLocationMenu() {
         clickTimer = null;
         currentLocation = val;
         localStorage.setItem(LOC_KEY, currentLocation);
+        scheduleDropboxUpload(); // 他端末で「今いる場所」も揃うように同期する
         document.getElementById('locationLabel').textContent = `今いる場所:${loc}`;
         menu.classList.remove('open');
         pendingShuffleAnim = true; // 場所切り替え時もデッキがシャッフルされる演出を出す
@@ -1626,6 +1650,7 @@ function drawCard(forceCard) {
   lookaheadQueue = currentCard ? buildLookaheadQueue(realCount, [currentCard.id]) : [];
   nextCard = lookaheadQueue[0] || null; // 互換のため維持
   renderStack();
+  scheduleDropboxUpload(); // 他端末でも同じカードが前面に来るよう、選出結果を同期する
 }
 
 // 完了・スキップ後、あらかじめ確定していた次のカードをそのまま前面に昇格させる。
@@ -1775,6 +1800,7 @@ function promoteNextCard() {
       lookaheadQueue = currentCard ? buildLookaheadQueue(remaining, excludeForQueue) : [];
       nextCard = lookaheadQueue[0] || null;
       renderStack();
+      scheduleDropboxUpload();
     };
     if (gachaEffectDelayMs > 0) {
       deferredRedrawPending = true;
@@ -1788,6 +1814,7 @@ function promoteNextCard() {
     }
   }
   justSkippedId = null;
+  scheduleDropboxUpload(); // 他端末でも同じカードが前面に来るよう、選出結果を同期する
 }
 
 // カードの中身(タイトル・時間・タイマー・ボタン列)を、前面用・控え用で共通の構造で作る
@@ -2663,6 +2690,7 @@ function openCreate() {
   document.getElementById('fTitleError').style.display = 'none';
   setWantSelected(1);
   document.getElementById('deleteBtn').style.display = 'none';
+  document.getElementById('decomposeFromEditBtn').style.display = 'none';
   document.getElementById('editStepDots').innerHTML = '';
   const sheet = document.getElementById('cardSheet');
   sheet.classList.remove('card-back', 'flip-out');
@@ -2687,6 +2715,7 @@ function openEdit(c) {
   document.getElementById('fTitleError').style.display = 'none';
   setWantSelected(c.want);
   document.getElementById('deleteBtn').style.display = 'block';
+  document.getElementById('decomposeFromEditBtn').style.display = 'block';
   const dotsEl = document.getElementById('editStepDots');
   dotsEl.innerHTML = '';
   const stepDots = buildStepDotsEl(c);
@@ -2785,6 +2814,19 @@ document.getElementById('saveBtn').onclick = () => {
 document.getElementById('deleteBtn').onclick = () => {
   if (editingId) deleteCard(editingId);
   closeOverlay();
+};
+document.getElementById('decomposeFromEditBtn').onclick = () => {
+  const target = cards.find(x => x.id === editingId);
+  if (!target) return;
+  const sheet = document.getElementById('cardSheet');
+  if (sheet.classList.contains('card-back')) {
+    // 編集画面(カード裏面)は回転して閉じる演出を挟むため、それが終わってから分解画面を開く
+    sheet.addEventListener('animationend', () => openDecompose(target), { once: true });
+    closeOverlay();
+  } else {
+    closeOverlay();
+    openDecompose(target);
+  }
 };
 
 function populateLocationSelect() {

@@ -284,7 +284,7 @@
   /* ===== 「自発的にやりたい」が出た時の、SSR風の派手な演出(星が弾け飛ぶだけのシンプルな構成) ===== */
   .ssr-burst {
     position: absolute; inset: -30px;
-    pointer-events: none !important; z-index: 25;
+    pointer-events: none !important; z-index: 110; /* 星は一瞬の演出なので、前面カード(100)より手前に出して良い */
   }
   .ssr-burst * { pointer-events: none !important; }
   /* 中心から星形の粒子が四方八方へ弾け飛ぶ(--dx/--dyは各粒子ごとにJSで設定) */
@@ -316,27 +316,33 @@
      めくり動作が終わるまでは同じ光の要素を維持し、結果が出た瞬間に
      ・当たり:瞬時に消えて星の演出へ ・外れ:ゆっくり収束して消える、という分岐にする */
   .gacha-glow-base {
-    position: absolute; right: -6px; bottom: -6px;
-    width: 130px; height: 130px;
-    pointer-events: none !important; z-index: 9; /* 最前面カード(z-index:10)の裏、控えカードの上あたり */
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,215,90,0.6) 0%, rgba(255,215,90,0.22) 50%, transparent 74%);
-    filter: blur(18px);
+    position: absolute; inset: -16px; /* カード全体を一回り大きく覆う、輪郭に沿った光る面にする */
+    pointer-events: none !important; z-index: 50; /* 控え(最大20程度)より上、前面カード(100)より下に収める */
+    border-radius: 30px; /* カード自体の角丸(18px)より少し大きめに */
+    background: rgba(255, 215, 90, 0.22);
+    /* filter:blurは一部のモバイルブラウザでpointer-events:noneと組み合わせた際に
+       タップを正しく透過しない癖があるため使わず、box-shadowのぼかしで柔らかい光を作る */
+    box-shadow:
+      0 0 50px 16px rgba(255, 215, 90, 0.45),
+      inset 0 0 45px 12px rgba(255, 215, 90, 0.32);
   }
-  .gacha-pending { animation: gachaPulse 0.85s ease-in-out infinite; }
+  .gacha-pending { animation: gachaPulse 2.55s ease-in-out infinite; } /* 元の1/3程度の速度に */
   @keyframes gachaPulse {
-    0%, 100% { transform: scale(0.85); opacity: 0.6; }
-    50% { transform: scale(1.15); opacity: 1; }
-  }
-  .card.gacha-breathing { animation: gachaBreath 0.45s ease-in-out infinite; }
-  @keyframes gachaBreath {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.025); }
+    0%, 100% { transform: scale(0.97); opacity: 0.65; }
+    50% { transform: scale(1.04); opacity: 1; }
   }
   .gacha-lose-collapse { animation: gachaLoseCollapse 0.9s ease-in forwards; }
   @keyframes gachaLoseCollapse {
-    0% { transform: scale(1); opacity: 0.9; filter: blur(18px) grayscale(0); }
-    100% { transform: scale(0.15); opacity: 0; filter: blur(22px) grayscale(1); }
+    0% {
+      transform: scale(1); opacity: 0.9;
+      background: rgba(255, 215, 90, 0.22);
+      box-shadow: 0 0 50px 16px rgba(255, 215, 90, 0.45), inset 0 0 45px 12px rgba(255, 215, 90, 0.32);
+    }
+    100% {
+      transform: scale(0.15); opacity: 0;
+      background: rgba(150, 150, 150, 0.22);
+      box-shadow: 0 0 50px 16px rgba(150, 150, 150, 0.35), inset 0 0 45px 12px rgba(150, 150, 150, 0.22);
+    }
   }
 
   .card-inner.want-0 .top-row, .card-inner.want-0 ~ .icon-action-row, .card-inner.want-0 .center p { color: var(--red-text); }
@@ -430,6 +436,15 @@
     right: calc(24px + 54px + 12px + 54px + 12px + env(safe-area-inset-right));
   }
   .fab.fab-points:disabled { opacity: 0.4; cursor: default; }
+  /* ガチャの結果待ち(次のスキップ・完了まで保留中)の間、ボタン自体も分かるように控えめに脈動させる */
+  .fab.fab-points.gacha-armed {
+    animation: gachaArmedPulse 0.9s ease-in-out infinite;
+    box-shadow: 0 0 0 3px rgba(255,215,90,0.5);
+  }
+  @keyframes gachaArmedPulse {
+    0%, 100% { box-shadow: 0 0 0 2px rgba(255,215,90,0.35); }
+    50% { box-shadow: 0 0 0 5px rgba(255,215,90,0.6); }
+  }
   .fab.fab-points.shake { animation: pointsShake 0.4s ease; }
   .fab.fab-points.shake-fail { animation: pointsShakeFail 0.35s ease; background: var(--red-border); }
   @keyframes pointsShake {
@@ -1041,6 +1056,8 @@ const GACHA_COST = 3; // ポイント使用ボタンで消費する固定コス�
 const SKIP_COST = 0.2; // 連続スキップ2回目以降、1回ごとに消費するポイント
 const DEMOTE_THRESHOLD = 3; // 「自発的にやりたい」カードが連続で何回スキップされたら格下げするか
 let globalSkipStreak = 0; // 直近の連続スキップ回数(カードの種類を問わない、課金判定用)
+let deferredRedrawPending = false; // ガチャ演出待ちで、全体再描画をまだ実行していない間はtrue
+let pendingGachaEffectDelayMs = 0; // resolvePendingGachaIfAnyの結果(演出に必要な時間)を、呼び出し元からpromoteNextCardへ橋渡しする
 const RARE_TARGET_RATIO = 0.03; // レアの目標出現比率(非レアの総重みに対して)
 const RARE_RATIO_TAPER_COUNT = 5; // 非レアの残り枚数がこれを下回ったら、目標比率もなだらかに下げる
 let lastRareId = null; // 直前に前面へ出たレアカードのID(次のレア抽選で一時的に避けるため)
@@ -1049,7 +1066,7 @@ function renderPoints() {
   const valueEl = document.getElementById('pointsUseValue');
   if (valueEl) valueEl.textContent = `${totalPoints()}P`;
   const useBtn = document.getElementById('pointsUseBtn');
-  if (useBtn) useBtn.disabled = totalPoints() < GACHA_COST;
+  if (useBtn) useBtn.disabled = totalPoints() < GACHA_COST || !!pendingGacha;
 
   const countdownEl = document.getElementById('pointsCountdown');
   if (points.time >= 2) {
@@ -1090,15 +1107,16 @@ function playPointsSpendFeedback(success) {
   btn.addEventListener('animationend', () => btn.classList.remove('shake', 'shake-fail'), { once: true });
 }
 
-const GACHA_WIN_CHANCE = 0.5; // ポイント使用時、当選確率をここまで引き上げる(それでも外れることがある)
-const GACHA_ANTICIPATION_MS = 900; // 「期待感を煽る」演出の長さ
+const GACHA_WIN_CHANCE = 0.65; // ポイント使用時、当選確率をここまで引き上げる(それでも外れることがある)
 
 // ポイントを消費して、レア(自発的にやりたい)を引き当てる確率を大きく引き上げる。
 // あくまで「確率を上げる」だけで、結果を直接確定させない(外れることもある)。
 // 外れてもポイントは戻らない
+let pendingGacha = null; // 保留中のガチャ(次にスキップ・完了を押すまで結果を持ち越す)
+
 function useGachaPoints() {
   if (totalPoints() < GACHA_COST) return; // ボタン自体がdisabledになるので通常ここには来ない
-  if (isTransitioning) return; // 抽選中・カード遷移中は、状態がズレるのを防ぐため新たな操作を受け付けない
+  if (pendingGacha) return; // 既に結果待ちのガチャがある間は、二重に受け付けない
 
   const now = Date.now();
   // まず、そもそも「賭けの対象」になりうるレアタスクが存在するか確認しておく
@@ -1113,34 +1131,50 @@ function useGachaPoints() {
     return;
   }
 
-  // ここから先は「賭け」なので、結果に関わらずポイントを消費する。
-  // 演出待ちの間、スキップ・完了などで状態がズレないよう、その間は操作をブロックしておく
-  isTransitioning = true;
+  // ここから先は「賭け」なので、結果に関わらずポイントを消費する
   spendPoints(GACHA_COST);
-  renderPoints();
+  playPointsSpendFeedback(true); // 使ったこと自体への反応として、ボタンを一度揺らす
 
   const stack = document.querySelector('#stackArea .stack');
   const glow = playGachaAnticipation(stack);
+  // 結果はすぐには出さず、光を点したまま「次にスキップ・完了を押すまで」保留しておく
+  pendingGacha = { glow };
+  renderPoints(); // pendingGachaを設定した後で呼び、ボタンの無効化にも反映させる
+  const btn = document.getElementById('pointsUseBtn');
+  if (btn) btn.classList.add('gacha-armed'); // 保留中であることが分かるよう、ボタン自体もそれと分かる見た目にする
+}
 
-  setTimeout(() => {
-    try {
-      const won = Math.random() < GACHA_WIN_CHANCE;
-      // 演出待ちの間に万一状況が変わっていた場合に備え、反映時にも最新の状態で判定し直す
-      const applied = won ? applyGachaWin(document.querySelector('#stackArea .stack')) : false;
-      if (applied) {
-        // 当たり:光は瞬時に消えて、そのまま星の演出につながる
-        removeGachaGlowInstant(glow);
-        playGachaWinEffect(stack);
-        playPointsSpendFeedback(true);
-      } else {
-        // 外れ:同じ光がゆっくり収束して消える
-        playGachaLoseEffect(glow);
-        playPointsSpendFeedback(false);
-      }
-    } finally {
-      isTransitioning = false;
+// 保留中のガチャがあれば、次のカード操作(スキップ・完了)のタイミングで結果を出す。
+// 光の演出は、この瞬間まで維持され続ける
+// 保留中のガチャがあれば、次のカード操作(スキップ・完了)のタイミングで結果を出す。
+// 光の演出は、この瞬間まで維持され続ける。
+// 戻り値:演出が最後まで再生されるのに必要なミリ秒(呼び出し側は、この間だけ全体再描画を遅らせる)
+function resolvePendingGachaIfAny() {
+  if (!pendingGacha) return 0;
+  const { glow } = pendingGacha;
+  pendingGacha = null;
+  const btn = document.getElementById('pointsUseBtn');
+  if (btn) btn.classList.remove('gacha-armed');
+  try {
+    const stack = document.querySelector('#stackArea .stack');
+    const won = Math.random() < GACHA_WIN_CHANCE;
+    const applied = won ? applyGachaWin(stack) : false;
+    if (applied) {
+      // 当たり:光は瞬時に消えて、そのまま星の演出につながる(星の演出は最大1.2秒ほど)
+      removeGachaGlowInstant(glow);
+      playGachaWinEffect(stack);
+      playPointsSpendFeedback(true);
+      return 1250;
+    } else {
+      // 外れ:同じ光がゆっくり収束して消える(収束アニメーションは0.9秒)
+      playGachaLoseEffect(glow);
+      playPointsSpendFeedback(false);
+      return 950;
     }
-  }, GACHA_ANTICIPATION_MS);
+  } catch (e) {
+    console.error('ガチャの結果反映でエラー:', e);
+    return 0;
+  }
 }
 
 // 当選時:控えの中にいれば先頭へ、いなければcards全体から新たに呼び込む(これまでの差し込みロジック)。
@@ -1210,7 +1244,6 @@ function playGachaAnticipation(stack) {
     const glow = document.createElement('div');
     glow.className = 'gacha-glow-base gacha-pending';
     stack.appendChild(glow);
-    if (frontFace && frontFace.el) frontFace.el.classList.add('gacha-breathing');
     return glow;
   } catch (e) {
     console.error(e);
@@ -1221,7 +1254,6 @@ function playGachaAnticipation(stack) {
 function removeGachaGlowInstant(glow) {
   try {
     if (glow) glow.remove();
-    if (frontFace && frontFace.el) frontFace.el.classList.remove('gacha-breathing');
   } catch (e) {
     console.error(e);
   }
@@ -1232,7 +1264,6 @@ function playGachaWinEffect(stack) {
 // 外れ:同じ光の要素を、脈動から「ゆっくり収束して消える」アニメーションに切り替える
 function playGachaLoseEffect(glow) {
   try {
-    if (frontFace && frontFace.el) frontFace.el.classList.remove('gacha-breathing');
     if (!glow) return;
     glow.classList.remove('gacha-pending');
     glow.classList.add('gacha-lose-collapse');
@@ -1600,6 +1631,10 @@ function drawCard(forceCard) {
 // 完了・スキップ後、あらかじめ確定していた次のカードをそのまま前面に昇格させる。
 // ランダムな再抽選をしないことで、「控えにいたのと同じカードが繰り上がる」体験を保証する
 function promoteNextCard() {
+  // ガチャの結果は、繰り上がりアニメーションが始まる前(skipCard/completeCardの冒頭)で
+  // 既に出し終えている。ここではその時に必要になった演出待ち時間だけを受け取る
+  const gachaEffectDelayMs = pendingGachaEffectDelayMs;
+  pendingGachaEffectDelayMs = 0;
   clearTimer();
   tickTimePoints();
   renderPoints();
@@ -1647,6 +1682,9 @@ function promoteNextCard() {
     if (promoted.decBtn) promoted.decBtn.onclick = () => openDecompose(promoted.data);
 
     frontFace = promoted;
+    // renderStackと同様、控えのz-indexがデッキ枚数次第で10を超えうるため、
+    // 繰り上がって前面になったカードにも、確実に上回る明示的なz-indexを設定しておく
+    promoted.el.style.zIndex = '100';
     startTimer(promoted.countEl, promoted.data.time, promoted.data.id);
     if (promoted.data.want === 3) {
       lastRareId = promoted.data.id;
@@ -1725,21 +1763,36 @@ function promoteNextCard() {
       }
     }
   } else {
-    // \u30d5\u30a9\u30fc\u30eb\u30d0\u30c3\u30af:\u901a\u5e38\u306e\u518d\u62bd\u9078\u30fb\u518d\u63cf\u753b
-    currentCard = pickCard(justSkippedId ? [justSkippedId] : null, true);
-    const remaining = currentCard ? Math.min(THICKNESS_REAL_CAP, Math.max(0, cards.length - 1)) : 0;
-    const excludeForQueue = currentCard ? [currentCard.id] : [];
-    if (justSkippedId) excludeForQueue.push(justSkippedId);
-    lookaheadQueue = currentCard ? buildLookaheadQueue(remaining, excludeForQueue) : [];
-    nextCard = lookaheadQueue[0] || null;
-    renderStack();
+    // フォールバック:通常の再抽選・再描画。
+    // 直前でガチャの演出が始まったばかりの場合、ここで即座に全体再描画(renderStack)すると
+    // 演出ごと画面から消えてしまうため、演出の再生が終わるまで、この再描画だけを遅らせる
+    const capturedJustSkippedId = justSkippedId; // 関数末尾で先にnull化されるため、ここで確保しておく
+    const doFallbackRedraw = () => {
+      currentCard = pickCard(capturedJustSkippedId ? [capturedJustSkippedId] : null, true);
+      const remaining = currentCard ? Math.min(THICKNESS_REAL_CAP, Math.max(0, cards.length - 1)) : 0;
+      const excludeForQueue = currentCard ? [currentCard.id] : [];
+      if (capturedJustSkippedId) excludeForQueue.push(capturedJustSkippedId);
+      lookaheadQueue = currentCard ? buildLookaheadQueue(remaining, excludeForQueue) : [];
+      nextCard = lookaheadQueue[0] || null;
+      renderStack();
+    };
+    if (gachaEffectDelayMs > 0) {
+      deferredRedrawPending = true;
+      setTimeout(() => {
+        doFallbackRedraw();
+        deferredRedrawPending = false;
+        isTransitioning = false; // 遅延中ブロックしていた操作を、ここで初めて解放する
+      }, gachaEffectDelayMs);
+    } else {
+      doFallbackRedraw();
+    }
   }
   justSkippedId = null;
 }
 
 // カードの中身(タイトル・時間・タイマー・ボタン列)を、前面用・控え用で共通の構造で作る
 // 分解済みタスクなら、総ステップ数と現在の段階を表すドット要素を作る。分解されていなければnull
-// 「自発的にやりたい」カードが前面に出た瞬間、フラッシュ・光の放射・キラキラ粒子を弾けさせる
+// 「自発的にやりたい」カードが前面に出た瞬間、キラキラ粒子を弾けさせる
 function playSSREffect(stack) {
   // 演出は「あればなお良い」程度の付加要素なので、万が一ここで何か失敗しても、
   // スキップ・完了・タイマーなど本体の動作を絶対に止めないよう、丸ごと保護しておく
@@ -1942,6 +1995,10 @@ function renderStack() {
   face.skipBtn.onclick = () => skipCard(c);
   if (face.decBtn) face.decBtn.onclick = () => openDecompose(c);
 
+  // 控えのz-indexは「remainingTotal - i」で計算され、デッキ枚数が多いと10を超えることがある。
+  // .card基本クラスのz-index:10だけに頼ると、その場合に控えが前面より手前に来てしまうため、
+  // 前面カードには常にどんな状況でも控えを上回る、明示的に強いz-indexを設定しておく
+  card.style.zIndex = '100';
   stack.appendChild(card);
   frontFace = { data: c, ...face };
   area.appendChild(stack);
@@ -2054,6 +2111,9 @@ function nextMidnight() {
 function completeCard(c) {
   if (isTransitioning) return; // 連打による二重発火を防ぐ
   isTransitioning = true;
+  // 保留中のガチャがあれば、控えを一枚ずつ寄せていくアニメーションが始まる前に、ここで先に結果を出しておく。
+  // (アニメーション開始後に結果を出すと、一瞬「差し替わる前のカード」が見えてしまうため)
+  pendingGachaEffectDelayMs = resolvePendingGachaIfAny();
   const doComplete = () => {
     try {
       // ポイント加算(want=2は軽め、それ以外は達成価値を高めに)
@@ -2076,8 +2136,9 @@ function completeCard(c) {
       promoteNextCard();
       cardEl.remove(); // 退場アニメーション後の古い要素をDOMから確実に取り除く
     } finally {
-      // 途中で何が起きても、操作不能(連打防止フラグが戻らなくなる)には絶対に陥らないようにする
-      isTransitioning = false;
+      // 途中で何が起きても、操作不能(連打防止フラグが戻らなくなる)には絶対に陥らないようにする。
+      // ただし、ガチャ演出待ちで全体再描画をまだ実行していない間だけは、状態がズレるのを防ぐため維持する
+      if (!deferredRedrawPending) isTransitioning = false;
     }
   };
   const cardEl = frontFace ? frontFace.el : null;
@@ -2130,6 +2191,10 @@ function skipCard(c) {
     renderPoints();
   }
 
+  // 保留中のガチャがあれば、控えを一枚ずつ寄せていくアニメーションが始まる前に、ここで先に結果を出しておく。
+  // (アニメーション開始後に結果を出すと、一瞬「差し替わる前のカード」が見えてしまうため)
+  pendingGachaEffectDelayMs = resolvePendingGachaIfAny();
+
   const doSkip = () => {
     try {
       justSkippedId = c.id; // 直後の1サイクルだけ、このカードを控えの選出から除外する
@@ -2144,7 +2209,8 @@ function skipCard(c) {
       promoteNextCard();
       cardEl.remove(); // 退場アニメーション後の古い要素をDOMから確実に取り除く
     } finally {
-      isTransitioning = false;
+      // 遅延中(ガチャ演出待ち)の間だけは、状態がズレるのを防ぐため維持する
+      if (!deferredRedrawPending) isTransitioning = false;
     }
   };
   const cardEl = frontFace ? frontFace.el : null;

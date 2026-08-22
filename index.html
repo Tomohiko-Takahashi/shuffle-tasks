@@ -845,6 +845,51 @@ document.addEventListener('visibilitychange', () => {
 });
 window.addEventListener('pagehide', flushDropboxUpload);
 
+// ダウンロードしてきたデータ(cards/points/locations/currentLocation/currentCardId)を、
+// 手元の状態に反映する共通処理。「タブに戻ってきた時」「アプリを新規に開いた時」の両方で使う
+function applyRemoteData(remote) {
+  if (!remote) return;
+  if (Array.isArray(remote.cards)) { cards = remote.cards; localStorage.setItem(STORAGE_KEY, JSON.stringify(cards)); }
+  if (remote.points) {
+    // 他端末のデータが万一おかしな形(欠損・NaN等)でも、カウントダウンが壊れたまま
+    // 固まってしまわないよう、安全な値に補正してから採用する
+    const rp = remote.points;
+    points = {
+      task: (typeof rp.task === 'number' && isFinite(rp.task)) ? rp.task : 0,
+      time: (typeof rp.time === 'number' && isFinite(rp.time)) ? rp.time : 0,
+      lastTick: (typeof rp.lastTick === 'number' && isFinite(rp.lastTick)) ? rp.lastTick : Date.now(),
+    };
+    localStorage.setItem(POINTS_KEY, JSON.stringify(points));
+  }
+  if (Array.isArray(remote.locations)) { LOCATIONS = remote.locations; localStorage.setItem(LOCATIONS_KEY, JSON.stringify(LOCATIONS)); }
+
+  // 他端末で最後にいた「今いる場所」があれば、それに合わせる
+  let locationChanged = false;
+  if (typeof remote.currentLocation === 'string' && remote.currentLocation !== currentLocation) {
+    currentLocation = remote.currentLocation;
+    localStorage.setItem(LOC_KEY, currentLocation);
+    const labelEl = document.getElementById('locationLabel');
+    if (labelEl) labelEl.textContent = currentLocation ? `今いる場所:${currentLocation}` : '今いる場所:指定なし';
+    locationChanged = true;
+  }
+
+  renderLocationMenu();
+  populateLocationSelect();
+
+  const remoteCardId = remote.currentCardId || null;
+  const localCardId = currentCard ? currentCard.id : null;
+  const remoteCardStillExists = remoteCardId && cards.some(c => c.id === remoteCardId);
+
+  if (locationChanged || (remoteCardId && remoteCardId !== localCardId)) {
+    // 場所が変わった、または他端末で違うカードを見ていた場合は、それに合わせて切り替える
+    drawCard(remoteCardStillExists ? cards.find(c => c.id === remoteCardId) : undefined);
+  } else {
+    // 今表示中のカードがまだ存在するなら、表示やタイマーには一切触れない
+    const stillExists = localCardId && cards.some(c => c.id === localCardId);
+    if (!stillExists) drawCard();
+  }
+}
+
 // 他の端末を使い終えてこのタブに戻ってきた瞬間、自動で最新のデータを取得して反映する
 // (これにより「今すぐ同期」ボタンを毎回押す必要がなくなる)
 let autoSyncInFlight = false;
@@ -853,37 +898,7 @@ async function autoSyncOnReturn() {
   autoSyncInFlight = true;
   try {
     const remote = await downloadFromDropbox();
-    if (remote) {
-      if (Array.isArray(remote.cards)) { cards = remote.cards; localStorage.setItem(STORAGE_KEY, JSON.stringify(cards)); }
-      if (remote.points) { points = remote.points; localStorage.setItem(POINTS_KEY, JSON.stringify(points)); }
-      if (Array.isArray(remote.locations)) { LOCATIONS = remote.locations; localStorage.setItem(LOCATIONS_KEY, JSON.stringify(LOCATIONS)); }
-
-      // 他端末で最後にいた「今いる場所」があれば、それに合わせる
-      let locationChanged = false;
-      if (typeof remote.currentLocation === 'string' && remote.currentLocation !== currentLocation) {
-        currentLocation = remote.currentLocation;
-        localStorage.setItem(LOC_KEY, currentLocation);
-        const labelEl = document.getElementById('locationLabel');
-        if (labelEl) labelEl.textContent = currentLocation ? `今いる場所:${currentLocation}` : '今いる場所:指定なし';
-        locationChanged = true;
-      }
-
-      renderLocationMenu();
-      populateLocationSelect();
-
-      const remoteCardId = remote.currentCardId || null;
-      const localCardId = currentCard ? currentCard.id : null;
-      const remoteCardStillExists = remoteCardId && cards.some(c => c.id === remoteCardId);
-
-      if (locationChanged || (remoteCardId && remoteCardId !== localCardId)) {
-        // 場所が変わった、または他端末で違うカードを見ていた場合は、それに合わせて切り替える
-        drawCard(remoteCardStillExists ? cards.find(c => c.id === remoteCardId) : undefined);
-      } else {
-        // 今表示中のカードがまだ存在するなら、表示やタイマーには一切触れない
-        const stillExists = localCardId && cards.some(c => c.id === localCardId);
-        if (!stillExists) drawCard();
-      }
-    }
+    applyRemoteData(remote);
   } finally {
     autoSyncInFlight = false;
   }
@@ -2859,14 +2874,7 @@ document.getElementById('dbxConnectBtn').onclick = () => { startDropboxAuth(); }
 document.getElementById('dbxSyncNowBtn').onclick = async () => {
   setDbxMsg('同期中...');
   const remote = await downloadFromDropbox();
-  if (remote) {
-    if (Array.isArray(remote.cards)) { cards = remote.cards; localStorage.setItem(STORAGE_KEY, JSON.stringify(cards)); }
-    if (remote.points) { points = remote.points; localStorage.setItem(POINTS_KEY, JSON.stringify(points)); }
-    if (Array.isArray(remote.locations)) { LOCATIONS = remote.locations; localStorage.setItem(LOCATIONS_KEY, JSON.stringify(LOCATIONS)); }
-    renderLocationMenu();
-    populateLocationSelect();
-    drawCard();
-  }
+  applyRemoteData(remote);
   await uploadToDropbox();
 };
 document.getElementById('dbxDisconnectBtn').onclick = () => { disconnectDropbox(); };
@@ -2877,6 +2885,14 @@ document.getElementById('notifEnableBtn').onclick = async () => {
 };
 
 // ===== 初期化 =====
+// 同期データが無い(未接続・Dropbox側に何も無い)場合の、通常の初期表示
+function drawInitialCardWithoutRemote() {
+  renderLocationMenu();
+  populateLocationSelect();
+  document.getElementById('locationLabel').textContent = `今いる場所:${currentLocation || '指定なし'}`;
+  drawCard();
+}
+
 async function initApp() {
   // Dropbox認証からのリダイレクト(?code=...)が来ていれば処理する
   const justAuthed = await handleDropboxOAuthCallback();
@@ -2885,19 +2901,17 @@ async function initApp() {
     await initDropbox();
     const remote = await downloadFromDropbox();
     if (remote) {
-      if (Array.isArray(remote.cards)) { cards = remote.cards; localStorage.setItem(STORAGE_KEY, JSON.stringify(cards)); }
-      if (remote.points) { points = remote.points; localStorage.setItem(POINTS_KEY, JSON.stringify(points)); }
-      if (Array.isArray(remote.locations)) { LOCATIONS = remote.locations; localStorage.setItem(LOCATIONS_KEY, JSON.stringify(LOCATIONS)); }
+      // 「今いる場所」「前面カード」も含めて、他端末の状態をそのまま反映する
+      applyRemoteData(remote);
     } else {
       // Dropbox側にまだファイルが無い(初回接続時など)場合は、今の手元のデータをアップロードしておく
       uploadToDropbox();
+      drawInitialCardWithoutRemote();
     }
+  } else {
+    drawInitialCardWithoutRemote();
   }
 
-  renderLocationMenu();
-  populateLocationSelect();
-  document.getElementById('locationLabel').textContent = `今いる場所:${currentLocation || '指定なし'}`;
-  drawCard();
   if (justAuthed) {
     renderSettingsUI();
     document.getElementById('settingsOverlay').classList.add('open');

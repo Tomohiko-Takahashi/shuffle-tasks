@@ -174,7 +174,7 @@
     box-sizing: border-box;
   }
   /* 控えの奥側:実体は本物のカードだが、見た目だけダミー風に覆い隠す */
-  .card.masked .card-inner, .card.masked .icon-action-row { visibility: hidden; }
+  .card.masked .card-inner, .card.masked .icon-action-row, .card.masked .time-tab { visibility: hidden; }
   /* 新規タスク登録・場所切り替え時:デッキの上半分らしきカードが弧を描いて下へ移り、切られたように見える */
   .cut-card {
     position:absolute; inset:0;
@@ -370,9 +370,23 @@
     text-shadow: 1px 2px 3px rgba(0,0,0,0.35);
     white-space: pre-wrap;
   }
-  .card .timer { margin-top:8px; }
-  .card .timer-count { font-size: 28px; font-weight: 800; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
-  .card .timer-total { font-size: 13px; font-weight: 500; opacity: 0.6; font-variant-numeric: tabular-nums; margin-left: 2px; }
+  .card .timer { margin-top:0; }
+  .card .timer-count { font-size: 22px; font-weight: 800; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
+  .card .timer-total { font-size: 11px; font-weight: 500; opacity: 0.6; font-variant-numeric: tabular-nums; margin-left: 2px; }
+  /* 時間タブ:card-innerの白い縁の下辺と、タブ自身の下辺がぴったり接するように配置する。
+     card-innerの外(card自身の子)に置くことで、白い縁の境界線をまたいで乗る見た目になる */
+  .card .time-tab {
+    position: absolute;
+    left: 50%; bottom: 64px; /* card-innerのbottom(64px)と同じ基準で、下辺をぴったり揃える */
+    transform: translateX(-50%);
+    background: rgba(255,255,255,0.96);
+    border-radius: 10px 10px 0 0;
+    padding: 3px 16px 2px;
+    z-index: 3;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.14);
+    color: #333; /* 白背景の上に乗るため、want別の色ではなく独立した濃いグレーで統一する */
+    pointer-events: none;
+  }
   .card .icon-action-row {
     position:absolute; left:0; right:0; bottom: 10px;
     display:flex; gap:14px; justify-content:center; align-items:center; z-index:2;
@@ -1588,10 +1602,18 @@ function pickCard(excludeIds, allowFallback) {
     ? locMatches
     : (currentLocation ? alive.filter(c => !c.location) : alive);
 
-  // 順序付きカード(order有り)があれば最小orderを最優先
-  const ordered = usePool.filter(c => c.order != null).sort((a,b)=>a.order-b.order);
-  if (locMatches.length > 0 && ordered.length > 0) {
-    return ordered[0];
+  // 順序付きカード(分解タスク)があれば優先する。ただし「order」の数字は同じ系列(parentId)の
+  // 中でしか意味を持たないため、系列ごとに「今その中で一番手前にある手順」だけを代表として立て、
+  // 系列同士の間では(数字の大小ではなく)公平にランダムで選ぶ
+  const seqHeadsMap = new Map();
+  usePool.forEach(c => {
+    if (c.order == null || c.parentId == null) return;
+    const cur = seqHeadsMap.get(c.parentId);
+    if (!cur || c.order < cur.order) seqHeadsMap.set(c.parentId, c);
+  });
+  const seqHeads = [...seqHeadsMap.values()];
+  if (locMatches.length > 0 && seqHeads.length > 0) {
+    return seqHeads[Math.floor(Math.random() * seqHeads.length)];
   }
 
   // 2. want重み。「自発的にやりたい」だけは固定重みではなく、
@@ -1937,7 +1959,7 @@ function buildCardFace(cardData) {
   totalEl.textContent = ' / ' + formatClock(cardData.time);
   timerEl.appendChild(countEl);
   timerEl.appendChild(totalEl);
-  center.appendChild(p1); center.appendChild(timerEl);
+  center.appendChild(p1);
 
   const iconRow = document.createElement('div');
   iconRow.className = 'icon-action-row';
@@ -1958,6 +1980,13 @@ function buildCardFace(cardData) {
   cardInner.appendChild(topRow);
   cardInner.appendChild(center);
   card.appendChild(cardInner);
+
+  // 時間表示タブ:card-innerの白い縁の下辺と、タブ自身の下辺がぴったり合うように、
+  // card自身の子として(card-innerとは独立に)配置する。横は中央寄せ
+  const timeTab = document.createElement('div');
+  timeTab.className = 'time-tab';
+  timeTab.appendChild(timerEl);
+  card.appendChild(timeTab);
 
   let decBtn = null;
   const hasChildren = cards.some(x => x.parentId === cardData.id);

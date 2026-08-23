@@ -370,7 +370,7 @@
     text-shadow: 1px 2px 3px rgba(0,0,0,0.35);
     white-space: pre-wrap;
   }
-  .card .timer { margin-top:0; }
+  .card .timer { margin-top:0; white-space: nowrap; }
   .card .timer-count { font-size: 22px; font-weight: 800; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
   .card .timer-total { font-size: 11px; font-weight: 500; opacity: 0.6; font-variant-numeric: tabular-nums; margin-left: 2px; }
   /* 時間タブ:card-innerの白い縁の下辺と、タブ自身の下辺がぴったり接するように配置する。
@@ -379,6 +379,8 @@
     position: absolute;
     left: 50%; bottom: 64px; /* card-innerのbottom(64px)と同じ基準で、下辺をぴったり揃える */
     transform: translateX(-50%);
+    width: max-content; /* 内容の幅に合わせて確実にサイズを決める(ブラウザ間の揺れを避ける) */
+    white-space: nowrap; /* 分母の時間が2行目に折り返されないよう、確実に1行にする */
     background: rgba(255,255,255,0.96);
     border-radius: 10px 10px 0 0;
     padding: 3px 16px 2px;

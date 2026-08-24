@@ -1646,19 +1646,9 @@ function pickCard(excludeIds, allowFallback) {
     ? locMatches
     : (currentLocation ? alive.filter(c => !c.location) : alive);
 
-  // 順序付きカード(分解タスク)があれば優先する。ただし「order」の数字は同じ系列(parentId)の
-  // 中でしか意味を持たないため、系列ごとに「今その中で一番手前にある手順」だけを代表として立て、
-  // 系列同士の間では(数字の大小ではなく)公平にランダムで選ぶ
-  const seqHeadsMap = new Map();
-  usePool.forEach(c => {
-    if (c.order == null || c.parentId == null) return;
-    const cur = seqHeadsMap.get(c.parentId);
-    if (!cur || c.order < cur.order) seqHeadsMap.set(c.parentId, c);
-  });
-  const seqHeads = [...seqHeadsMap.values()];
-  if (locMatches.length > 0 && seqHeads.length > 0) {
-    return seqHeads[Math.floor(Math.random() * seqHeads.length)];
-  }
+  // 分解タスクの手順(order・parentId有り)は、特別扱いせず、自分自身の「やりたい度」の重みで
+  // 他の通常タスクと同じ土俵で公平に抽選する。ブロック判定(isChildBlocked)は既にaliveの時点で
+  // 適用済みなので、ここでは「今出せる手順だけがusePoolに残っている」状態が保証されている
 
   // 2. want重み。「自発的にやりたい」だけは固定重みではなく、
   //    「その時のプール内にある、レア以外の総重みに対する比率」で動的に計算する(目標3%)。

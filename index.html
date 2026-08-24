@@ -1118,7 +1118,6 @@ let globalSkipStreak = 0; // 直近の連続スキップ回数(カードの種�
 let deferredRedrawPending = false; // ガチャ演出待ちで、全体再描画をまだ実行していない間はtrue
 let pendingGachaEffectDelayMs = 0; // resolvePendingGachaIfAnyの結果(演出に必要な時間)を、呼び出し元からpromoteNextCardへ橋渡しする
 const RARE_TARGET_RATIO = 0.03; // レアの目標出現比率(非レアの総重みに対して)
-const RARE_RATIO_TAPER_COUNT = 5; // 非レアの残り枚数がこれを下回ったら、目標比率もなだらかに下げる
 let lastRareId = null; // 直前に前面へ出たレアカードのID(次のレア抽選で一時的に避けるため)
 
 function renderPoints() {
@@ -1641,11 +1640,7 @@ function pickCard(excludeIds, allowFallback) {
 
   if (rareCards.length > 0) {
     if (nonRareWeightSum > 0) {
-      let rareRatio = RARE_TARGET_RATIO;
-      if (nonRareCards.length < RARE_RATIO_TAPER_COUNT) {
-        rareRatio = RARE_TARGET_RATIO * (nonRareCards.length / RARE_RATIO_TAPER_COUNT);
-      }
-      const perRareWeight = (nonRareWeightSum * rareRatio) / rareCards.length;
+      const perRareWeight = (nonRareWeightSum * RARE_TARGET_RATIO) / rareCards.length;
       rareCards.forEach(c => weighted.push({ card: c, w: perRareWeight }));
     } else {
       // 非レアが1枚も無い(プールがレアだけ)場合は、比率計算が成立しないので均等な重みで扱う

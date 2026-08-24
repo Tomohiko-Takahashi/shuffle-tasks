@@ -1101,8 +1101,8 @@ let secondsLeft = 0;
 function tickTimePoints() {
   const now = Date.now();
   const elapsedMin = (now - (points.lastTick || now)) / 60000;
-  if (elapsedMin >= 30) {
-    const ticks = Math.floor(elapsedMin / 30);
+  if (elapsedMin >= 20) {
+    const ticks = Math.floor(elapsedMin / 20);
     points.time = Math.min(5, points.time + ticks * 0.5); // 1日上限の目安として5でキャップ(簡易実装)
     points.lastTick = now;
     savePoints(points);
@@ -1112,7 +1112,7 @@ function tickTimePoints() {
 function totalPoints() { return Math.round((points.task + points.time) * 10) / 10; }
 
 const GACHA_COST = 3; // ポイント使用ボタンで消費する固定コスト
-const SKIP_COST = 0.2; // 連続スキップ2回目以降、1回ごとに消費するポイント
+const SKIP_COST = 0.2; // 連続スキップ3回目以降、1回ごとに消費するポイント
 const DEMOTE_THRESHOLD = 3; // 「自発的にやりたい」カードが連続で何回スキップされたら格下げするか
 let globalSkipStreak = 0; // 直近の連続スキップ回数(カードの種類を問わない、課金判定用)
 let deferredRedrawPending = false; // ガチャ演出待ちで、全体再描画をまだ実行していない間はtrue
@@ -1135,7 +1135,7 @@ function renderPoints() {
   }
   countdownEl.style.display = '';
   const now = Date.now();
-  const nextTickAt = (points.lastTick || now) + 30 * 60000;
+  const nextTickAt = (points.lastTick || now) + 20 * 60000;
   const msLeft = Math.max(0, nextTickAt - now);
   const m = Math.floor(msLeft / 60000);
   const s = Math.floor((msLeft % 60000) / 1000);
@@ -2276,10 +2276,10 @@ function skipCard(c) {
     willDemote = nextStreak >= DEMOTE_THRESHOLD;
   }
 
-  // 連続スキップの課金:1回目は無償、2回目以降は0.2消費。
+  // 連続スキップの課金:1・2回目は無償、3回目以降は0.2消費。
   // ただしこの一回で格下げが発動する場合は、既に「データを正直な状態に戻す」という
   // より本質的な対処が働くので、二重の罰にしないよう課金は免除する
-  if (globalSkipStreak >= 2 && !willDemote) {
+  if (globalSkipStreak >= 3 && !willDemote) {
     spendPoints(SKIP_COST);
     renderPoints();
   }

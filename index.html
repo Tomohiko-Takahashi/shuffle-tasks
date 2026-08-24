@@ -1178,10 +1178,11 @@ function useGachaPoints() {
   if (pendingGacha) return; // 既に結果待ちのガチャがある間は、二重に受け付けない
 
   const now = Date.now();
-  // まず、そもそも「賭けの対象」になりうるレアタスクが存在するか確認しておく
+  // まず、そもそも「賭けの対象」になりうるレアタスクが存在するか確認しておく(今いる場所限定)
   const idxInQueue = lookaheadQueue.findIndex((c, i) => i > 0 && c.want === 3);
   const excludeIds = [currentCard ? currentCard.id : null, ...lookaheadQueue.map(d => d.id)].filter(Boolean);
-  const freshCandidate = idxInQueue > 0 ? null : cards.find(c => c.want === 3 && !excludeIds.includes(c.id) &&
+  const locPool = locationEligiblePool(cards);
+  const freshCandidate = idxInQueue > 0 ? null : locPool.find(c => c.want === 3 && !excludeIds.includes(c.id) &&
     !isChildBlocked(c) && (!c.availableAfter || c.availableAfter <= now));
 
   if (idxInQueue <= 0 && !freshCandidate) {
@@ -1266,7 +1267,8 @@ function applyGachaWin(stack) {
     }
 
     const excludeIds = [currentCard ? currentCard.id : null, ...lookaheadQueue.map(d => d.id)].filter(Boolean);
-    const freshCandidate = cards.find(c => c.want === 3 && !excludeIds.includes(c.id) &&
+    const locPool = locationEligiblePool(cards);
+    const freshCandidate = locPool.find(c => c.want === 3 && !excludeIds.includes(c.id) &&
       !isChildBlocked(c) && (!c.availableAfter || c.availableAfter <= now));
 
     if (freshCandidate && stack) {
@@ -1661,6 +1663,15 @@ function pickCard(excludeIds, allowFallback) {
   return weighted[weighted.length - 1] ? weighted[weighted.length - 1].card : null;
 }
 
+// pickCardと同じ場所の絞り込みルールを、任意のカード集合に適用する共通ヘルパー。
+// (ガチャの候補探しなど、pickCard以外の場所でも同じ場所ルールを守るために使う)
+function locationEligiblePool(pool) {
+  if (!currentLocation) return pool; // 「指定なし」の時は絞り込み自体を行わない
+  const exact = pool.filter(c => c.location === currentLocation);
+  if (exact.length > 0) return exact;
+  return pool.filter(c => !c.location); // 該当が無ければ「場所指定なし」のカードだけに絞る
+}
+
 function isChildBlocked(c) {
   // 親を持つ子タスクで、自分より小さいorderの兄弟が未完了なら出さない。
   // ただし「1日1回」等で完了後に複製され、翌日まで隠れているだけの兄弟(availableAfterが未来)は、
@@ -1689,6 +1700,9 @@ function buildLookaheadQueue(count, excludeIds) {
 
 // ===== カード表示 =====
 function drawCard(forceCard) {
+  // 場所の切り替えや新規作成など、drawCardが呼ばれる操作の直前に保留中のガチャがあれば、
+  // 画面ごと作り直される前に、ここで結果を出しておく(でないと結果が宙に浮いたまま消えてしまう)
+  resolvePendingGachaIfAny();
   clearTimer();
   tickTimePoints();
   renderPoints();

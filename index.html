@@ -123,6 +123,22 @@
     pointer-events:none;
     z-index: 5;
   }
+  /* 連続スキップの残り無償回数を示すゲージ。ポイントボタンの真上、カウントダウンバッジのすぐ下に一直線で並べる */
+  .skip-gauge {
+    position: fixed;
+    right: calc(24px + 54px + 12px + 54px + 12px + env(safe-area-inset-right) - 12px);
+    bottom: calc(24px + 54px + 3px + env(safe-area-inset-bottom));
+    width: 78px;
+    display: flex; gap: 4px;
+    pointer-events: none;
+    z-index: 5;
+  }
+  .skip-gauge .skip-gauge-seg {
+    flex: 1; height: 4px; border-radius: 2px;
+    background: var(--border-strong);
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+  }
+  .skip-gauge .skip-gauge-seg.filled { background: var(--accent); }
 
   /* カードスタック */
   .stack {
@@ -595,6 +611,11 @@
 </div>
 
 <div class="points-countdown-badge" id="pointsCountdown"></div>
+<div class="skip-gauge" id="skipGauge">
+  <span class="skip-gauge-seg"></span>
+  <span class="skip-gauge-seg"></span>
+  <span class="skip-gauge-seg"></span>
+</div>
 <button class="fab fab-points fab-points-far" id="pointsUseBtn" aria-label="ポイントを使う">
   <span id="pointsUseValue">0P</span>
 </button>
@@ -819,6 +840,7 @@ async function uploadToDropbox() {
     cards, points, locations: LOCATIONS,
     currentLocation, // 他端末でも同じ「今いる場所」が開けるように
     currentCardId: currentCard ? currentCard.id : null, // 他端末でも同じカードが前面に来るように
+    currentCardTimerEndAt: currentCard ? timerEndAt : null, // 他端末でも、進んだ分だけ減った状態でタイマーが始まるように
     savedAt: Date.now(),
   });
   try {
@@ -902,6 +924,11 @@ function applyRemoteData(remote) {
   const remoteCardStillExists = remoteCardId && cards.some(c => c.id === remoteCardId);
 
   if (locationChanged || (remoteCardId && remoteCardId !== localCardId)) {
+    // 他端末で進んでいた分だけ減った状態でタイマーが始まるよう、切り替える前に終了予定時刻を仕込んでおく。
+    // drawCard内のclearTimerで消えてしまわないよう、専用の一時変数(pendingTimerSeed)を使う
+    if (remoteCardStillExists && typeof remote.currentCardTimerEndAt === 'number' && isFinite(remote.currentCardTimerEndAt)) {
+      pendingTimerSeed = { cardId: remoteCardId, endAt: remote.currentCardTimerEndAt };
+    }
     // 場所が変わった、または他端末で違うカードを見ていた場合は、それに合わせて切り替える
     drawCard(remoteCardStillExists ? cards.find(c => c.id === remoteCardId) : undefined);
   } else {
@@ -1120,7 +1147,16 @@ let pendingGachaEffectDelayMs = 0; // resolvePendingGachaIfAnyの結果(演出�
 const RARE_TARGET_RATIO = 0.03; // レアの目標出現比率(非レアの総重みに対して)
 let lastRareId = null; // 直前に前面へ出たレアカードのID(次のレア抽選で一時的に避けるため)
 
+// 連続スキップの残り無償回数(3回のうち、あと何回無償か)をゲージに反映する
+function renderSkipGauge() {
+  const remaining = Math.max(0, 3 - globalSkipStreak);
+  document.querySelectorAll('#skipGauge .skip-gauge-seg').forEach((seg, i) => {
+    seg.classList.toggle('filled', i < remaining);
+  });
+}
+
 function renderPoints() {
+  renderSkipGauge();
   const valueEl = document.getElementById('pointsUseValue');
   if (valueEl) valueEl.textContent = `${totalPoints()}P`;
   const useBtn = document.getElementById('pointsUseBtn');
@@ -2132,6 +2168,7 @@ function notifyTimeUp() {
 const TIMER_STATE_KEY = 'shuffle_tasks_timer_state_v1';
 let timerElRef = null;
 let timerEndAt = 0;
+let pendingTimerSeed = null; // 他端末の残り時間を一度だけ優先的に使うための仕込み({cardId, endAt})
 
 function loadTimerState() {
   try { return JSON.parse(localStorage.getItem(TIMER_STATE_KEY)); } catch (e) { return null; }
@@ -2148,13 +2185,21 @@ function startTimer(el, minutes, cardId) {
   // minutesが万一おかしな値(未定義・NaN等)だった場合、timerEndAt自体がNaNになり、
   // カウントダウンが「NaN:NaN」のまま永久に止まって見えるバグになるため、安全な値に補正しておく
   const safeMinutes = (typeof minutes === 'number' && isFinite(minutes) && minutes > 0) ? minutes : 15;
-  const saved = cardId ? loadTimerState() : null;
-  if (saved && saved.cardId === cardId && typeof saved.endAt === 'number' && isFinite(saved.endAt)) {
-    // 同じカードのタイマーが既に動いていた(再読み込みなど) → 終了予定時刻をそのまま引き継ぐ
-    timerEndAt = saved.endAt;
-  } else {
-    timerEndAt = Date.now() + Math.max(0, Math.round(safeMinutes * 60)) * 1000;
+  if (pendingTimerSeed && pendingTimerSeed.cardId === cardId &&
+      typeof pendingTimerSeed.endAt === 'number' && isFinite(pendingTimerSeed.endAt)) {
+    // 他端末から同期してきた、この特定の一回だけの終了予定時刻(drawCard内のclearTimerでは消えない)
+    timerEndAt = pendingTimerSeed.endAt;
     if (cardId) saveTimerState(cardId, timerEndAt);
+    pendingTimerSeed = null;
+  } else {
+    const saved = cardId ? loadTimerState() : null;
+    if (saved && saved.cardId === cardId && typeof saved.endAt === 'number' && isFinite(saved.endAt)) {
+      // 同じカードのタイマーが既に動いていた(再読み込みなど) → 終了予定時刻をそのまま引き継ぐ
+      timerEndAt = saved.endAt;
+    } else {
+      timerEndAt = Date.now() + Math.max(0, Math.round(safeMinutes * 60)) * 1000;
+      if (cardId) saveTimerState(cardId, timerEndAt);
+    }
   }
   updateTimerLabel();
   timerInterval = setInterval(updateTimerLabel, 1000);
@@ -2226,6 +2271,7 @@ function completeCard(c) {
       // loopType 'none' はそのまま消える
       saveCards(cards);
       globalSkipStreak = 0; // 何か1枚でも完了したら、連続スキップのカウントはリセットする
+      renderSkipGauge();
       promoteNextCard();
       cardEl.remove(); // 退場アニメーション後の古い要素をDOMから確実に取り除く
     } finally {
@@ -2267,6 +2313,7 @@ function skipCard(c) {
   isTransitioning = true;
 
   globalSkipStreak += 1; // 課金判定用の「連続スキップ回数」(カードの種類を問わない)
+  renderSkipGauge();
 
   // 「自発的にやりたい」カード自身の連続スキップ(=自称と実態のズレ)を検知し、
   // 閾値に達していたら、この一回で格下げする(「やれなくもない」へ)

@@ -1662,9 +1662,13 @@ function pickCard(excludeIds, allowFallback) {
 }
 
 function isChildBlocked(c) {
-  // 親を持つ子タスクで、自分より小さいorderの兄弟が未完了なら出さない
+  // 親を持つ子タスクで、自分より小さいorderの兄弟が未完了なら出さない。
+  // ただし「1日1回」等で完了後に複製され、翌日まで隠れているだけの兄弟(availableAfterが未来)は、
+  // 今日はもう出す必要が無いので、ブロックしている扱いにはしない
   if (c.parentId == null || c.order == null) return false;
-  const siblings = cards.filter(s => s.parentId === c.parentId && s.order < c.order);
+  const now = Date.now();
+  const siblings = cards.filter(s => s.parentId === c.parentId && s.order < c.order &&
+    (!s.availableAfter || s.availableAfter <= now));
   return siblings.length > 0;
 }
 

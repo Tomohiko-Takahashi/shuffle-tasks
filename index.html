@@ -1016,7 +1016,7 @@ function populateTimeSelect(selectEl, currentValue) {
   selectEl.value = currentValue || TIME_OPTIONS[0];
 }
 // 基礎重み(出現しやすさの相対値)。want=2(らくらく)が最高、want=3(自発的にやりたい)が最低。
-const BASE_WEIGHT = { 0: 3, 1: 5, 2: 10, 3: 1 };
+const BASE_WEIGHT = { 0: 3, 1: 7, 2: 15, 3: 1 };
 
 // 控えの厚み表現:手前THICKNESS_REAL_CAP枚だけ本物のカードとして先読みし(繰り上がりの継続性用)、
 // それより奥はTHICKNESS_CAPまで、中身を持たない軽量なダミーで枚数の分厚さだけ表現する
@@ -2198,9 +2198,11 @@ function completeCard(c) {
   pendingGachaEffectDelayMs = resolvePendingGachaIfAny();
   const doComplete = () => {
     try {
-      // ポイント加算(want=2は軽め、それ以外は達成価値を高めに)
+      // ポイント加算(want=2は軽め、それ以外は達成価値を高めに)。
+      // ただし、割り当てた時間を過ぎてから完了した場合は加算しない
       const gain = c.want === 2 ? 0.5 : 1;
-      if (c.want !== 3) { // 報酬系の消化はタスクポイントに数えない
+      const timeIsUp = Date.now() >= timerEndAt;
+      if (c.want !== 3 && !timeIsUp) { // 報酬系の消化はタスクポイントに数えない
         points.task += gain;
         savePoints(points);
       }

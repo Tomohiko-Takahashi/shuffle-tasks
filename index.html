@@ -1103,7 +1103,7 @@ function tickTimePoints() {
   const elapsedMin = (now - (points.lastTick || now)) / 60000;
   if (elapsedMin >= 30) {
     const ticks = Math.floor(elapsedMin / 30);
-    points.time = Math.min(2, points.time + ticks * 0.2); // 1日上限の目安として2でキャップ(簡易実装)
+    points.time = Math.min(5, points.time + ticks * 0.5); // 1日上限の目安として5でキャップ(簡易実装)
     points.lastTick = now;
     savePoints(points);
   }
@@ -1128,7 +1128,7 @@ function renderPoints() {
   if (useBtn) useBtn.disabled = totalPoints() < GACHA_COST || !!pendingGacha;
 
   const countdownEl = document.getElementById('pointsCountdown');
-  if (points.time >= 2) {
+  if (points.time >= 5) {
     // 1日の上限に達している間は、次の加算がないのでカウントダウンを表示しない
     countdownEl.textContent = '';
     countdownEl.style.display = 'none';

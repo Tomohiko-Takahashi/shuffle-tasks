@@ -2289,6 +2289,12 @@ function hasSkipAlternative(excludeId) {
 
 function skipCard(c) {
   if (isTransitioning) return; // 連打による二重発火を防ぐ
+
+  // 「他に切り替え先が無い」場合の早期リターンより手前で、保留中のガチャがあれば必ず解決しておく。
+  // ここより後ろで解決すると、早期リターンの経路を通った時に結果が永遠に宙に浮いたままになり、
+  // ポイントボタンも「保留中」表示のまま固まってしまうため。結果(演出に必要な待ち時間)は後で使うため保持しておく
+  const gachaDelayFromEarlyResolve = resolvePendingGachaIfAny();
+
   if (!hasSkipAlternative(c.id)) {
     // 他に切り替えられるカードが無い場合は、何もせず振動だけ返す(点滅なし)
     const cardElNow = frontFace ? frontFace.el : null;
@@ -2321,9 +2327,8 @@ function skipCard(c) {
     renderPoints();
   }
 
-  // 保留中のガチャがあれば、控えを一枚ずつ寄せていくアニメーションが始まる前に、ここで先に結果を出しておく。
-  // (アニメーション開始後に結果を出すと、一瞬「差し替わる前のカード」が見えてしまうため)
-  pendingGachaEffectDelayMs = resolvePendingGachaIfAny();
+  // 保留中のガチャの解決は、上のearly resolveで既に済んでいる。その時の結果(演出の待ち時間)を引き継ぐ
+  pendingGachaEffectDelayMs = gachaDelayFromEarlyResolve;
 
   const doSkip = () => {
     try {

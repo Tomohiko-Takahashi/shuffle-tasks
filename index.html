@@ -190,7 +190,7 @@
     box-sizing: border-box;
   }
   /* 控えの奥側:実体は本物のカードだが、見た目だけダミー風に覆い隠す */
-  .card.masked .card-inner, .card.masked .icon-action-row, .card.masked .time-tab { visibility: hidden; }
+  .card.masked .card-inner, .card.masked .icon-action-row, .card.masked .time-tab, .card.masked .skip-count-badge { visibility: hidden; }
   /* 新規タスク登録・場所切り替え時:デッキの上半分らしきカードが弧を描いて下へ移り、切られたように見える */
   .cut-card {
     position:absolute; inset:0;
@@ -403,6 +403,21 @@
     z-index: 3;
     box-shadow: 0 -2px 5px rgba(0,0,0,0.14);
     color: #333; /* 白背景の上に乗るため、want別の色ではなく独立した濃いグレーで統一する */
+    pointer-events: none;
+  }
+  /* 連続で後回しにされている回数のバッジ。time-tab(時間表示)の左上角にちょうど重なるように置く */
+  .card .skip-count-badge {
+    position: absolute;
+    top: 0; left: 0;
+    transform: translate(-50%, -50%);
+    width: 30px; height: 30px; /* 従来(20px)の1.5倍 */
+    border-radius: 50%; /* 完全な円形 */
+    background: #fff; /* 白地 */
+    color: #333;
+    font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.08);
+    z-index: 4;
     pointer-events: none;
   }
   .card .icon-action-row {
@@ -672,6 +687,16 @@
       <button id="decomposeFromEditBtn" style="display:none;">分解</button>
       <button id="deleteBtn" class="danger" style="display:none;">削除</button>
       <button id="saveBtn" class="primary">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="gachaTargetOverlay">
+  <div class="sheet" style="max-width:320px;">
+    <h3>どちらを狙いますか?</h3>
+    <div id="gachaTargetList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;"></div>
+    <div class="sheet-actions">
+      <button id="gachaTargetCancelBtn">キャンセル</button>
     </div>
   </div>
 </div>
@@ -1088,9 +1113,9 @@ function savePoints(p){ localStorage.setItem(POINTS_KEY, JSON.stringify(p)); sch
 function seedCards() {
   // 初回起動時のサンプル
   return [
-    {id: uid(), title:'上着をハンガーにかける', time:1, want:2, location:'帰宅直後', loopType:'daily', order:1, parentId:null, skipStreak:0, availableAfter:0},
-    {id: uid(), title:'YouTubeを見る(10分)', time:10, want:3, location:'', loopType:'anytime', order:null, parentId:null, skipStreak:0, availableAfter:0},
-    {id: uid(), title:'請求書を1件処理する', time:15, want:0, location:'', loopType:'none', order:null, parentId:null, skipStreak:0, availableAfter:0},
+    {id: uid(), title:'上着をハンガーにかける', time:1, want:2, location:'帰宅直後', loopType:'daily', order:1, parentId:null, skipStreak:0, skipCount:0, availableAfter:0},
+    {id: uid(), title:'YouTubeを見る(10分)', time:10, want:3, location:'', loopType:'anytime', order:null, parentId:null, skipStreak:0, skipCount:0, availableAfter:0},
+    {id: uid(), title:'請求書を1件処理する', time:15, want:0, location:'', loopType:'none', order:null, parentId:null, skipStreak:0, skipCount:0, availableAfter:0},
   ];
 }
 function uid(){ return Math.random().toString(36).slice(2,10); }
@@ -1144,7 +1169,7 @@ const DEMOTE_THRESHOLD = 3; // 「自発的にやりたい」カードが連続�
 let globalSkipStreak = 0; // 直近の連続スキップ回数(カードの種類を問わない、課金判定用)
 let deferredRedrawPending = false; // ガチャ演出待ちで、全体再描画をまだ実行していない間はtrue
 let pendingGachaEffectDelayMs = 0; // resolvePendingGachaIfAnyの結果(演出に必要な時間)を、呼び出し元からpromoteNextCardへ橋渡しする
-const RARE_TARGET_RATIO = 0.03; // レアの目標出現比率(非レアの総重みに対して)
+const RARE_TARGET_RATIO = 0.003; // レアの目標出現比率(非レアの総重みに対して)。ごくまれに自然に出会う"名残"程度に抑える
 let lastRareId = null; // 直前に前面へ出たレアカードのID(次のレア抽選で一時的に避けるため)
 
 // 連続スキップの残り無償回数(3回のうち、あと何回無償か)をゲージに反映する
@@ -1208,36 +1233,87 @@ const GACHA_WIN_CHANCE = 0.65; // ポイント使用時、当選確率をここ�
 // 外れてもポイントは戻らない
 let pendingGacha = null; // 保留中のガチャ(次にスキップ・完了を押すまで結果を持ち越す)
 
+// 今、賭けの対象になりうる「自発的にやりたい」候補を、控え・新規候補の両方から重複なく集める(今いる場所限定)
+function gatherRewardCandidates() {
+  const now = Date.now();
+  const seen = new Set();
+  const result = [];
+  const inQueueIds = new Set(lookaheadQueue.map(d => d.id));
+
+  // 控えの中(先頭以外)に、既にいるもの
+  lookaheadQueue.forEach((c, i) => {
+    if (i > 0 && c.want === 3 && !seen.has(c.id)) {
+      seen.add(c.id);
+      result.push(c);
+    }
+  });
+
+  // まだ控えにいない、新規に呼び込める候補
+  const excludeIds = [currentCard ? currentCard.id : null].filter(Boolean);
+  const locPool = locationEligiblePool(cards);
+  locPool.forEach(c => {
+    if (c.want === 3 && !seen.has(c.id) && !excludeIds.includes(c.id) && !inQueueIds.has(c.id) &&
+        !isChildBlocked(c) && (!c.availableAfter || c.availableAfter <= now)) {
+      seen.add(c.id);
+      result.push(c);
+    }
+  });
+
+  return result;
+}
+
 function useGachaPoints() {
   if (totalPoints() < GACHA_COST) return; // ボタン自体がdisabledになるので通常ここには来ない
   if (pendingGacha) return; // 既に結果待ちのガチャがある間は、二重に受け付けない
 
-  const now = Date.now();
-  // まず、そもそも「賭けの対象」になりうるレアタスクが存在するか確認しておく(今いる場所限定)
-  const idxInQueue = lookaheadQueue.findIndex((c, i) => i > 0 && c.want === 3);
-  const excludeIds = [currentCard ? currentCard.id : null, ...lookaheadQueue.map(d => d.id)].filter(Boolean);
-  const locPool = locationEligiblePool(cards);
-  const freshCandidate = idxInQueue > 0 ? null : locPool.find(c => c.want === 3 && !excludeIds.includes(c.id) &&
-    !isChildBlocked(c) && (!c.availableAfter || c.availableAfter <= now));
-
-  if (idxInQueue <= 0 && !freshCandidate) {
+  const candidates = gatherRewardCandidates();
+  if (candidates.length === 0) {
     // そもそも呼び込める対象が無い場合は、賭けとして成立しないのでポイントは消費しない
     playPointsSpendFeedback(false);
     return;
   }
 
-  // ここから先は「賭け」なので、結果に関わらずポイントを消費する
+  if (candidates.length === 1) {
+    startGachaBet(candidates[0].id);
+  } else {
+    // 2つ以上あれば、どれを狙うか選んでもらう(まだポイントは消費しない)
+    showGachaTargetPicker(candidates);
+  }
+}
+
+// 選ばれたターゲットに狙いを定めて、賭けを開始する(ここで初めてポイントを消費する)
+function startGachaBet(targetCardId) {
   spendPoints(GACHA_COST);
   playPointsSpendFeedback(true); // 使ったこと自体への反応として、ボタンを一度揺らす
 
   const stack = document.querySelector('#stackArea .stack');
   const glow = playGachaAnticipation(stack);
   // 結果はすぐには出さず、光を点したまま「次にスキップ・完了を押すまで」保留しておく
-  pendingGacha = { glow };
+  pendingGacha = { glow, targetCardId };
   renderPoints(); // pendingGachaを設定した後で呼び、ボタンの無効化にも反映させる
   const btn = document.getElementById('pointsUseBtn');
   if (btn) btn.classList.add('gacha-armed'); // 保留中であることが分かるよう、ボタン自体もそれと分かる見た目にする
 }
+
+// 候補が2つ以上ある時、どれを狙うか選んでもらう選択画面を表示する
+function showGachaTargetPicker(candidates) {
+  const list = document.getElementById('gachaTargetList');
+  list.innerHTML = '';
+  candidates.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'settings-action-btn';
+    btn.textContent = c.title.split('\n')[0]; // 改行入りタイトルは1行目だけ表示
+    btn.onclick = () => {
+      document.getElementById('gachaTargetOverlay').classList.remove('open');
+      startGachaBet(c.id);
+    };
+    list.appendChild(btn);
+  });
+  document.getElementById('gachaTargetOverlay').classList.add('open');
+}
+document.getElementById('gachaTargetCancelBtn').onclick = () => {
+  document.getElementById('gachaTargetOverlay').classList.remove('open');
+};
 
 // 保留中のガチャがあれば、次のカード操作(スキップ・完了)のタイミングで結果を出す。
 // 光の演出は、この瞬間まで維持され続ける
@@ -1246,14 +1322,14 @@ function useGachaPoints() {
 // 戻り値:演出が最後まで再生されるのに必要なミリ秒(呼び出し側は、この間だけ全体再描画を遅らせる)
 function resolvePendingGachaIfAny() {
   if (!pendingGacha) return 0;
-  const { glow } = pendingGacha;
+  const { glow, targetCardId } = pendingGacha;
   pendingGacha = null;
   const btn = document.getElementById('pointsUseBtn');
   if (btn) btn.classList.remove('gacha-armed');
   try {
     const stack = document.querySelector('#stackArea .stack');
     const won = Math.random() < GACHA_WIN_CHANCE;
-    const applied = won ? applyGachaWin(stack) : false;
+    const applied = won ? applyGachaWin(stack, targetCardId) : false;
     if (applied) {
       // 当たり:光は瞬時に消えて、そのまま星の演出につながる(星の演出は最大1.2秒ほど)
       removeGachaGlowInstant(glow);
@@ -1272,13 +1348,20 @@ function resolvePendingGachaIfAny() {
   }
 }
 
-// 当選時:控えの中にいれば先頭へ、いなければcards全体から新たに呼び込む(これまでの差し込みロジック)。
-// 演出待ちの間に状況が変わっている可能性があるため、呼ばれた時点の最新状態で改めて判定する。
-// 反映できたかどうかをboolで返す(できなければ、呼び出し側で外れ扱いにする)
-function applyGachaWin(stack) {
+// 当選時:指定されたターゲット(狙ったご褒美)を優先的に探して反映する。
+// 演出待ちの間に、そのターゲットが無くなっていた(他端末で消化された等)場合に備え、
+// 他に候補があればそちらにフォールバックする。反映できたかどうかをboolで返す
+function applyGachaWin(stack, targetCardId) {
   try {
     const now = Date.now();
-    const idxInQueue = lookaheadQueue.findIndex((c, i) => i > 0 && c.want === 3);
+    const isEligible = (c) => c.want === 3 && !isChildBlocked(c) && (!c.availableAfter || c.availableAfter <= now);
+
+    // 1. 控えの中(先頭以外)に、指定ターゲットがまだいるか
+    let idxInQueue = targetCardId ? lookaheadQueue.findIndex((c, i) => i > 0 && c.id === targetCardId) : -1;
+    // 無ければ、控えの中の他のレアで代用する(フォールバック)
+    if (idxInQueue <= 0) {
+      idxInQueue = lookaheadQueue.findIndex((c, i) => i > 0 && c.want === 3);
+    }
 
     if (idxInQueue > 0 && ghostFaces[0] && ghostFaces[idxInQueue]) {
       const oldHeadFace = ghostFaces[0];
@@ -1303,8 +1386,14 @@ function applyGachaWin(stack) {
 
     const excludeIds = [currentCard ? currentCard.id : null, ...lookaheadQueue.map(d => d.id)].filter(Boolean);
     const locPool = locationEligiblePool(cards);
-    const freshCandidate = locPool.find(c => c.want === 3 && !excludeIds.includes(c.id) &&
-      !isChildBlocked(c) && (!c.availableAfter || c.availableAfter <= now));
+    // 2. 指定ターゲットが、まだ控えに入っていない新規候補として存在するか
+    let freshCandidate = targetCardId
+      ? locPool.find(c => c.id === targetCardId && !excludeIds.includes(c.id) && isEligible(c))
+      : null;
+    // 無ければ、他のレア候補で代用する(フォールバック)
+    if (!freshCandidate) {
+      freshCandidate = locPool.find(c => !excludeIds.includes(c.id) && isEligible(c));
+    }
 
     if (freshCandidate && stack) {
       if (ghostFaces.length > 0) {
@@ -2032,6 +2121,16 @@ function buildCardFace(cardData) {
   const timeTab = document.createElement('div');
   timeTab.className = 'time-tab';
   timeTab.appendChild(timerEl);
+
+  // 連続で後回しにされている回数のバッジ。0回の間は表示せず、1回以上スキップされたら現れる。
+  // timeTabの子要素にして、その左上角にちょうど重なる位置に置く(編集アイコンと距離を取るため)
+  if ((cardData.skipCount || 0) > 0) {
+    const skipBadge = document.createElement('div');
+    skipBadge.className = 'skip-count-badge';
+    skipBadge.textContent = String(cardData.skipCount);
+    timeTab.appendChild(skipBadge);
+  }
+
   card.appendChild(timeTab);
 
   let decBtn = null;
@@ -2253,10 +2352,10 @@ function completeCard(c) {
       cards = cards.filter(x => x.id !== c.id);
       if (c.loopType === 'anytime') {
         // 何度でも:完了直後、即座にまた出現候補に戻す
-        cards.push({...c, id: uid(), skipStreak:0, availableAfter:0});
+        cards.push({...c, id: uid(), skipStreak:0, skipCount:0, availableAfter:0});
       } else if (c.loopType === 'daily') {
         // 1日1回:翌日0時まで出現しないカードとして戻す
-        cards.push({...c, id: uid(), skipStreak:0, availableAfter: nextMidnight()});
+        cards.push({...c, id: uid(), skipStreak:0, skipCount:0, availableAfter: nextMidnight()});
       }
       // loopType 'none' はそのまま消える
       saveCards(cards);
@@ -2308,8 +2407,12 @@ function skipCard(c) {
   }
   isTransitioning = true;
 
-  globalSkipStreak += 1; // 課金判定用の「連続スキップ回数」(カードの種類を問わない)
-  renderSkipGauge();
+  // 「自発的にやりたい」(報酬系)のスキップは、そもそも無償のはずの設計だったため、
+  // 連続スキップの回数カウント・課金の対象から完全に除外する(見送っても一切ペナルティを負わない)
+  if (c.want !== 3) {
+    globalSkipStreak += 1; // 課金判定用の「連続スキップ回数」(カードの種類を問わない)
+    renderSkipGauge();
+  }
 
   // 「自発的にやりたい」カード自身の連続スキップ(=自称と実態のズレ)を検知し、
   // 閾値に達していたら、この一回で格下げする(「やれなくもない」へ)
@@ -2319,10 +2422,8 @@ function skipCard(c) {
     willDemote = nextStreak >= DEMOTE_THRESHOLD;
   }
 
-  // 連続スキップの課金:1・2回目は無償、3回目以降は0.2消費。
-  // ただしこの一回で格下げが発動する場合は、既に「データを正直な状態に戻す」という
-  // より本質的な対処が働くので、二重の罰にしないよう課金は免除する
-  if (globalSkipStreak >= 3 && !willDemote) {
+  // 連続スキップの課金:1・2回目は無償、3回目以降は0.2消費。「自発的にやりたい」は対象外
+  if (c.want !== 3 && globalSkipStreak >= 3) {
     spendPoints(SKIP_COST);
     renderPoints();
   }
@@ -2333,13 +2434,16 @@ function skipCard(c) {
   const doSkip = () => {
     try {
       justSkippedId = c.id; // 直後の1サイクルだけ、このカードを控えの選出から除外する
-      if (c.want === 3) {
-        cards = cards.map(x => {
-          if (x.id !== c.id) return x;
-          if (willDemote) return {...x, want: 1, skipStreak: 0};
-          return {...x, skipStreak: (x.skipStreak || 0) + 1};
-        });
-      }
+      cards = cards.map(x => {
+        if (x.id !== c.id) return x;
+        // 「何回連続で後回しにされているか」の可視化用カウント(want・格下げ判定とは別の、単純な表示用の値)
+        const updated = { ...x, skipCount: (x.skipCount || 0) + 1 };
+        if (x.want === 3) {
+          if (willDemote) { updated.want = 1; updated.skipStreak = 0; }
+          else { updated.skipStreak = (x.skipStreak || 0) + 1; }
+        }
+        return updated;
+      });
       saveCards(cards);
       promoteNextCard();
       cardEl.remove(); // 退場アニメーション後の古い要素をDOMから確実に取り除く
@@ -2548,12 +2652,17 @@ document.getElementById('decSaveBtn').onclick = () => {
   // 元カードを削除し、新しい手順を列の正しい位置に差し込む
   cards = cards.filter(x => x.id !== c.id);
   steps.forEach((s, i) => {
-    cards.push({id: uid(), title: s.title, time: s.time, want: s.want, location: s.location, loopType:'none', order: startOrder + i, parentId: targetParentId, skipStreak:0, availableAfter:0});
+    cards.push({id: uid(), title: s.title, time: s.time, want: s.want, location: s.location, loopType:'none', order: startOrder + i, parentId: targetParentId, skipStreak:0, skipCount:0, availableAfter:0});
   });
 
   // 列全体の総ステップ数を数え直し、メンバー全員のtotalStepsを更新する(進捗ドット表示のため)
   const totalSteps = cards.filter(x => x.parentId === targetParentId).length;
   cards = cards.map(x => x.parentId === targetParentId ? {...x, totalSteps} : x);
+
+  // 分解という行為そのものに、少額のポイントで報いる(気が重いタスクをその場で軽くする行動を後押しする)
+  points.task += 0.3;
+  savePoints(points);
+  renderPoints();
 
   saveCards(cards);
   decomposeTarget = null;
@@ -2904,7 +3013,7 @@ document.getElementById('saveBtn').onclick = () => {
   if (editingId) {
     cards = cards.map(c => c.id === editingId ? {...c, title, time, location, want, loopType} : c);
   } else {
-    cards.push({id: uid(), title, time, want, location, loopType, order:null, parentId:null, skipStreak:0, availableAfter:0});
+    cards.push({id: uid(), title, time, want, location, loopType, order:null, parentId:null, skipStreak:0, skipCount:0, availableAfter:0});
     pendingRevealAnim = true; // 新規登録の時だけ、次のカードをめくる演出を出す
     pendingShuffleAnim = true; // デッキ全体がシャッフルされる演出も合わせて出す
   }

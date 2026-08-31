@@ -914,9 +914,12 @@ document.addEventListener('visibilitychange', () => {
 window.addEventListener('pagehide', flushDropboxUpload);
 
 // ダウンロードしてきたデータ(cards/points/locations/currentLocation/currentCardId)を、
-// 手元の状態に反映する共通処理。「タブに戻ってきた時」「アプリを新規に開いた時」の両方で使う
-function applyRemoteData(remote) {
-  if (!remote) return;
+// 手元の状態に反映する共通処理。「タブに戻ってきた時」「アプリを新規に開いた時」の両方で使う。
+// resultはdownloadFromDropboxの戻り値をそのまま渡す({data}/{notFound}/{error})。
+// notFound(本当に初回)以外の失敗(通信エラー等)では、絶対に手元の状態を壊さないよう何もしない
+function applyRemoteData(result) {
+  if (!result || !result.data) return;
+  const remote = result.data;
   if (Array.isArray(remote.cards)) { cards = remote.cards; localStorage.setItem(STORAGE_KEY, JSON.stringify(cards)); }
   if (remote.points) {
     // 他端末のデータが万一おかしな形(欠損・NaN等)でも、カウントダウンが壊れたまま
@@ -936,10 +939,12 @@ function applyRemoteData(remote) {
   if (typeof remote.currentLocation === 'string' && remote.currentLocation !== currentLocation) {
     currentLocation = remote.currentLocation;
     localStorage.setItem(LOC_KEY, currentLocation);
-    const labelEl = document.getElementById('locationLabel');
-    if (labelEl) labelEl.textContent = currentLocation ? `今いる場所:${currentLocation}` : '今いる場所:指定なし';
     locationChanged = true;
   }
+  // 「変化したかどうか」に関わらず、表示のラベルは必ず今のcurrentLocationに合わせて更新し直す。
+  // (初期表示がたまたまズレていた場合、"変化なし"と判定されて表示だけ古いまま取り残されるのを防ぐ)
+  const labelEl = document.getElementById('locationLabel');
+  if (labelEl) labelEl.textContent = currentLocation ? `今いる場所:${currentLocation}` : '今いる場所:指定なし';
 
   renderLocationMenu();
   populateLocationSelect();
@@ -977,20 +982,24 @@ async function autoSyncOnReturn() {
   }
 }
 
+// 戻り値: 成功時は {data: 解析済みJSON}。ファイルがまだ存在しない(初回連携時など)場合は {notFound: true}。
+// それ以外の通信エラー等は {error: true} を返す(この場合、呼び出し側は絶対に「初回扱い」で上書きアップロードしてはいけない)
 async function downloadFromDropbox() {
-  if (!dbx) return null;
+  if (!dbx) return { error: true };
   try {
     const res = await dbx.filesDownload({ path: DBX_FILE_PATH });
     const text = await res.result.fileBlob.text();
-    return JSON.parse(text);
+    return { data: JSON.parse(text) };
   } catch (e) {
     const desc = describeDropboxError(e);
-    // ファイルがまだ存在しない(初回連携時など)は静かに無視する。それ以外は表示する
-    if (!/not_found|path\/not_found/i.test(desc)) {
-      console.error(e);
-      setDbxMsg('ダウンロードに失敗しました: ' + desc, true);
+    if (/not_found|path\/not_found/i.test(desc)) {
+      return { notFound: true };
     }
-    return null;
+    // ファイル不在以外のエラー(通信断・認証切れ等)は、手元のデータで上書きしてしまうと
+    // 危険なため、はっきり区別して返す
+    console.error(e);
+    setDbxMsg('ダウンロードに失敗しました: ' + desc, true);
+    return { error: true };
   }
 }
 
@@ -3101,13 +3110,17 @@ async function initApp() {
 
   if (isDropboxConnected()) {
     await initDropbox();
-    const remote = await downloadFromDropbox();
-    if (remote) {
+    const result = await downloadFromDropbox();
+    if (result.data) {
       // 「今いる場所」「前面カード」も含めて、他端末の状態をそのまま反映する
-      applyRemoteData(remote);
-    } else {
-      // Dropbox側にまだファイルが無い(初回接続時など)場合は、今の手元のデータをアップロードしておく
+      applyRemoteData(result);
+    } else if (result.notFound) {
+      // Dropbox側に本当にまだファイルが無い(正真正銘の初回接続時)場合だけ、今の手元のデータをアップロードしておく
       uploadToDropbox();
+      drawInitialCardWithoutRemote();
+    } else {
+      // 通信エラー等、ファイルの有無が確認できなかった場合は、絶対にアップロードで上書きしない。
+      // 手元にあるローカルのデータ(前回までの状態)でそのまま表示し、次回の自動同期に委ねる
       drawInitialCardWithoutRemote();
     }
   } else {
